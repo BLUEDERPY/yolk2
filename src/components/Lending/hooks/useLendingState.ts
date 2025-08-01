@@ -102,8 +102,8 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
     duration
   );
   const additonalFee = getInterestFeeInEggs(
-    borrowed || parseEther("0"),
-    borrowed
+    borrowed > 0|| parseEther("0"),
+    borrowed > 0
       ? dateDiff(new Date(Number(loan.duration) * 1000), new Date()) - duration - 1
       : 0
   );
