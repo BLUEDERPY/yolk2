@@ -30,14 +30,14 @@ export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
   }
 
   const currentExpiry = loanData
-    ? new Date(Number(loanData[2]) * 1000)
+    ? new Date(Number(loanData.endDate) * 1000)
     : new Date();
   const newExpiry = new Date(
     currentExpiry.getTime() + extensionDays * 24 * 60 * 60 * 1000
   );
   const max = 365 - dateDiff(currentExpiry, new Date());
 
-  const fee = getInterestFeeInEggs(loanData[1], extensionDays);
+  const fee = getInterestFeeInEggs(loanData.borrowed, extensionDays);
   const feeAmount = fee ? Number(formatEther(fee)) : 0;
 
   return (

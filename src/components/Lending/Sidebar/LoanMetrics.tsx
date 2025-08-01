@@ -17,13 +17,13 @@ export const LoanMetrics: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = (
   const loanData = userData[tokenType].loan;
 
   const { sonic: conversionRate } = useConverter(
-    loanData ? loanData[0] : parseEther("0")
+    loanData ? loanData.collateral : parseEther("0")
   );
 
   // Calculate values
-  const collateralEggs = loanData ? Number(formatEther(loanData[0])) : 0;
-  const borrowedSonic = loanData ? Number(formatEther(loanData[1])) : 0;
-  const borrowedSonicRaw = loanData ? loanData[1] : 0;
+  const collateralEggs = loanData ? Number(formatEther(loanData.collateral)) : 0;
+  const borrowedSonic = loanData ? Number(formatEther(loanData.borrowed)) : 0;
+  const borrowedSonicRaw = loanData ? loanData.borrowed : 0;
   //// // console.log(conversionRate);
   //// // console.log(borrowedSonicRaw);
   //// console.log(isSuccess);
@@ -36,13 +36,13 @@ export const LoanMetrics: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = (
 
   // Format expiration date
   const expirationDate = loanData
-    ? new Date(Number(loanData[2]) * 1000).toLocaleDateString("en-US", {
+    ? new Date(Number(loanData.endDate) * 1000).toLocaleDateString("en-US", {
         month: "2-digit",
         day: "2-digit",
         year: "numeric",
       }) +
       " " +
-      new Date(Number(loanData[2]) * 1000).toLocaleTimeString("en-US", {
+      new Date(Number(loanData.endDate) * 1000).toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
       })
@@ -59,7 +59,7 @@ export const LoanMetrics: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = (
   }
 
   const healthFactor = loanData
-    ? dateDiff(new Date(Number(loanData[2]) * 1000))
+    ? dateDiff(new Date(Number(loanData.endDate) * 1000))
     : { days: 0, hours: 0, minutes: 0 };
   // ////// console.log(healthFactor.minutes);
 

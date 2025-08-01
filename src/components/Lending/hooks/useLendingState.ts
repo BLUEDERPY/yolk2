@@ -27,10 +27,10 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
   const loan = userData[tokenType].loan;
   const balance = userData[tokenType].balance;
   
-  const borrowed = loan ? loan[1] : undefined;
-  const collateral = loan ? loan[0] : undefined;
+  const borrowed = loan ? loan.borrowed : undefined;
+  const collateral = loan ? loan.collateral : undefined;
   const minDuration = useMemo(() => {
-    if (borrowed) return dateDiff(new Date(Number(loan[2]) * 1000), new Date());
+    if (borrowed) return dateDiff(new Date(Number(loan.endDate) * 1000), new Date());
   }, [borrowed, loan]);
   const { eggs: borrowedInEggs } = useConverter(borrowed);
   const { sonic: collateralInSonic } = useConverter(collateral);
@@ -104,7 +104,7 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
   const additonalFee = getInterestFeeInEggs(
     borrowed || parseEther("0"),
     borrowed
-      ? dateDiff(new Date(Number(loan[2]) * 1000), new Date()) - duration - 1
+      ? dateDiff(new Date(Number(loan.endDate) * 1000), new Date()) - duration - 1
       : 0
   );
   const isTransactionOccuring = useMemo(() => {

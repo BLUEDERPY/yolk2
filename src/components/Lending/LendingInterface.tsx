@@ -47,7 +47,7 @@ export const LendingInterface: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }
   } = useLendingState(tokenType);
   const { userLoan } = useEggsData();
 
-  const borrowedSonic = userLoan && userLoan[1] ? Number(formatEther(userLoan[1])) : 0;
+  const borrowedSonic = userLoan && userLoan.borrowed ? Number(formatEther(userLoan.borrowed)) : 0;
 
   const hasPosition = borrowedSonic > 0;
 
