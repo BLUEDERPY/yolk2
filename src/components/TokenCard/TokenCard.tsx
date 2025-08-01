@@ -348,6 +348,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     <ArrowUpDown size={20} />
                   </Button>
                   <SwapInput
+                     tokenType={tokenType}
                     label={tradeDirection === "buy" ? tokenConfig.tokenName : tokenConfig.backingTitle}
                     value={convertedAmount.toFixed(6)}
                     onChange={() => {}}
