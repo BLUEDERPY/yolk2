@@ -1,18 +1,12 @@
 import { Grid, Box, Divider } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoopPage from "./pages/Loop";
-import BorrowPage from "./pages/Borrow";
-
-import HomePage from "./pages/Home";
 import { Header } from "./components/Header/Header";
 
-import Navigation from "./components/Header/Navigation";
 import { Footer } from "./components/Footer/Footer";
 import { BackgroundOverlay } from "./ui/BackgroundOverlay";
 import MainPage from "./pages/Main";
 
 import { ConsentDialog } from "./components/ConsentDialog";
-import StakingPage from "./pages/Staking";
 import TokenDemoPage from "./pages/TokenDemo";
 
 export const dynamic = "force-dynamic";
@@ -63,11 +57,6 @@ function App() {
             <Routes>
               <Route path="/" element={<MainPage />} />
               <Route path="/tokens" element={<TokenDemoPage />} />
-
-              <Route path="/trade" element={<HomePage />} />
-              <Route path="/lending" element={<BorrowPage />} />
-              <Route path="/leverage" element={<LoopPage />} />
-              <Route path="/staking" element={<StakingPage />} />
             </Routes>
           </Grid>
         </Box>
