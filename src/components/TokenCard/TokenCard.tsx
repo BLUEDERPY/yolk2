@@ -797,7 +797,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   </Box>
                 ) : (
                   <Box sx={{ p: 0, m: 0, height: {xs: 'auto', md: 575}}}>
-                    <LeverageCalculator />
+                    <LeverageCalculator tokenType={tokenType}/>
                   </Box>
                 )
               ) : (
