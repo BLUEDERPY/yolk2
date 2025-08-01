@@ -13,7 +13,6 @@ import {
   Divider,
 } from "@mui/material";
 import { formatDate, nFormatter } from "../../utils/formatters";
-import useleverage from "../hooks/useLeverage";
 import { parseEther } from "viem";
 import { InfoIcon } from "lucide-react";
 import { useEggsData } from "../../providers/data-provider";

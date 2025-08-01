@@ -15,7 +15,6 @@ export const ProtocolMetrics = () => {
     totalSupply,
   } = useEggsData();
 
-  console.log(backing);
   const metrics = [
     {
       title: "Total Borrowed",

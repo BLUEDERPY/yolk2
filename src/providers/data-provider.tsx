@@ -9,9 +9,6 @@ import {
   useReadContract,
   useAccount,
   useBalance,
-  usePublicClient,
-  usePrepareTransactionRequest,
-  useSimulateContract,
 } from "wagmi";
 import { EggsContract, Gauge } from "./contracts";
 import { Address, formatEther, parseEther } from "viem";
@@ -128,7 +125,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     address: EggsContract.address as Address,
     functionName: "start",
   });
-  console.log(isStarted);
 
   const { data: maxSupply, refetch: refetchMaxSupply } = useReadContract({
     abi: EggsContract.abi,
@@ -277,7 +273,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       args: [sonicAmount],
     });
   };
-  const publicClient = usePublicClient();
 
   const estimatedGas = 0; /* useEstimateGas({
     abi,
@@ -288,9 +283,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   });*/
 
   const leverage = (sonic, days, _fee) => {
-    //// // console.log(formatEther(sonic || "0"));
-    //// // console.log(formatEther(_fee || "0"));
-    console.log(days);
     writeContract({
       abi,
       address: address as Address,
@@ -364,10 +356,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     refetchUserEggsBalance();
     refetchEthBalance();
   };
-  // console.log(isSuccess);
   useEffect(() => {
     if (isSuccess) {
-      // console.log(1);
       refetchAll();
     }
   }, [isSuccess]);

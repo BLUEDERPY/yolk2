@@ -1,6 +1,4 @@
 import { useState, useMemo, useContext, useEffect, useCallback } from "react";
-import useEggsToSonic from "../../hooks/useEggsToSonic";
-import useBorrow from "../../hooks/useBorrow";
 import { GlobalContext } from "../../../providers/global-provider";
 
 import { formatEther, parseEther } from "viem";
@@ -45,7 +43,6 @@ export const useLendingState = () => {
     return _maxEggs + extraEggs;
   }, [maxEggs, duration, collateralInSonic, borrowed]);
 */
-  // console.log(max);
 
   useEffect(() => {
     if (isSuccess) {
@@ -84,7 +81,6 @@ export const useLendingState = () => {
 
   const [borrowAmount, _setBorrowAmount] = useState(undefined);
   const setBorrowAmount = (value: bigint) => {
-    // console.log(max, _val);
     if (max && max > value) _setBorrowAmount(value);
     else _setBorrowAmount(max);
   };
@@ -173,7 +169,6 @@ export const useLendingState = () => {
   };
 
   const handleBorrow = async () => {
-    // console.log(formatEther(totalConverted), duration);
     if (borrowed && borrowed > BigInt(0)) borrowMore(borrowAmount);
     else borrow(borrowAmount, duration);
   };

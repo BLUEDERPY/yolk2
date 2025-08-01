@@ -15,7 +15,6 @@ export const Dashboard = () => {
     4: loanByDay4,
     5: loanByDay5,
   };
-  console.log(loanData);
 
   return (
     <Grid container spacing={3} pl={{ xs: "25px" }} pr={{ xs: "20px" }}>
