@@ -115,8 +115,7 @@ export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' 
     label: scenario.label,
     ...calculateROI(scenario.increase),
   }));
-console.log(
-      new Date(Number(loan.endDate) * 1000) <= new Date() )
+
   return (
     <Box
       sx={{
@@ -127,8 +126,8 @@ console.log(
       }}
     >
       {loan &&
-      loan.borrowed
- ? (
+      loan.borrowed > 0 &&
+      new Date(Number(loan.endDate) * 1000) <= new Date() ? (
         <Box
           sx={{
             display: "grid",

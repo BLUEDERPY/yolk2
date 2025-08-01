@@ -31,9 +31,9 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
   const loanData = userData[tokenType].loan;
   const eggs = userData[tokenType].balance;
 
-  const collateral = loanData ? Number(formatEther(loanData.collateral)) : 0;
+  const collateral = loanData ? Number(formatEther(loanData[0])) : 0;
 
-  const { eggs: borrowedInEggs } = useConverter(loanData ? loanData.borrowed : 0);
+  const { eggs: borrowedInEggs } = useConverter(loanData ? loanData[1] : 0);
   const _maxRemovable =
     collateral * 0.99 - Number(formatEther(borrowedInEggs || "0"));
   const maxRemovable = _maxRemovable > 0 ? _maxRemovable : 0;

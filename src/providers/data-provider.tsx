@@ -226,8 +226,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     functionName: "lastPrice",
   });
 
-  // User data reads for EGGS token
-  const { data: eggsUserLoan, refetch: refetchEggsUserLoan } = useReadContract({
+  // User data reads
+  const { data: userLoan, refetch: refetchUserLoan } = useReadContract({
     abi: EggsContract.abi,
     address: EggsContract.address as Address,
     functionName: "getLoanByAddress",
@@ -235,8 +235,15 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     enabled: isConnected,
   });
 
+  const { data: nextReward } = useReadContract({
+    abi: Gauge.abi,
+    address: Gauge.address as Address,
+    functionName: "earned",
+    args: ["0x5050bc082FF4A74Fb6B0B04385dEfdDB114b2424", userAddress],
+    enabled: isConnected,
+  });
 
-  const { data: eggsUserBalance, refetch: refetchEggsUserBalance } =
+  const { data: userEggsBalance, refetch: refetchUserEggsBalance } =
     useReadContract({
       abi: EggsContract.abi,
       address: EggsContract.address as Address,
@@ -250,86 +257,28 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     enabled: isConnected,
   });
 
-  // User data reads for YOLK token (TODO: Add actual contract when available)
-  const { data: yolkUserLoan, refetch: refetchYolkUserLoan } = useReadContract({
-    abi: TokenContracts.yolk.abi,
-    address: TokenContracts.yolk.address as Address,
-    functionName: "getLoanByAddress",
-    args: [userAddress],
-    enabled: isConnected && TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
-  });
-
-  const { data: yolkUserBalance, refetch: refetchYolkUserBalance } =
-    useReadContract({
-      abi: TokenContracts.yolk.abi,
-      address: TokenContracts.yolk.address as Address,
-      functionName: "balanceOf",
-      args: [userAddress],
-      enabled: isConnected && TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
-    });
-
-  // User data reads for NEST token (TODO: Add actual contract when available)
-  const { data: nestUserLoan, refetch: refetchNestUserLoan } = useReadContract({
-    abi: TokenContracts.nest.abi,
-    address: TokenContracts.nest.address as Address,
-    functionName: "getLoanByAddress",
-    args: [userAddress],
-    enabled: isConnected && TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
-  });
-
-  const { data: nestUserBalance, refetch: refetchNestUserBalance } =
-    useReadContract({
-      abi: TokenContracts.nest.abi,
-      address: TokenContracts.nest.address as Address,
-      functionName: "balanceOf",
-      args: [userAddress],
-      enabled: isConnected && TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
-    });
-  const { data: nextReward } = useReadContract({
-    abi: Gauge.abi,
-    address: Gauge.address as Address,
-    functionName: "earned",
-    args: ["0x5050bc082FF4A74Fb6B0B04385dEfdDB114b2424", userAddress],
-    enabled: isConnected,
-  });
-
   // Create userData structure
   const userData = {
     eggs: {
-      loan: eggsUserLoan ? {
-        collateral: eggsUserLoan[0] as bigint,
-        borrowed: eggsUserLoan[1] as bigint,
-        endDate: eggsUserLoan[2] as bigint
+      loan: userLoan ? {
+        collateral: userLoan[0] as bigint,
+        borrowed: userLoan[1] as bigint,
+        endDate: userLoan[2] as bigint
       } : undefined,
-      balance: eggsUserBalance && eggsUserBalance > BigInt(1000) ? eggsUserBalance : undefined,
+      balance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
       backingBalance: ethBalance,
     },
     yolk: {
-      loan: yolkUserLoan ? {
-        collateral: yolkUserLoan[0] as bigint,
-        borrowed: yolkUserLoan[1] as bigint,
-        endDate: yolkUserLoan[2] as bigint
-      } : undefined,
-      balance: yolkUserBalance && yolkUserBalance > BigInt(1000) ? yolkUserBalance : undefined,
+      loan: undefined, // TODO: Add yolk loan data when available
+      balance: undefined, // TODO: Add yolk balance when available
       backingBalance: undefined, // TODO: Add USDC balance when available
     },
     nest: {
-      loan: nestUserLoan ? {
-        collateral: nestUserLoan[0] as bigint,
-        borrowed: nestUserLoan[1] as bigint,
-        endDate: nestUserLoan[2] as bigint
-      } : undefined,
-      balance: nestUserBalance && nestUserBalance > BigInt(1000) ? nestUserBalance : undefined,
-      backingBalance: eggsUserBalance, // NEST uses EGGS as backing
+      loan: undefined, // TODO: Add nest loan data when available
+      balance: undefined, // TODO: Add nest balance when available
+      backingBalance: undefined, // TODO: Add eggs balance when available
     },
   };
-
-    console.log(userData);
-
-  // Legacy compatibility - map to the first available data (eggs)
-  const userLoan = eggsUserLoan;
-  const userEggsBalance = eggsUserBalance;
-  const userSonicBalance = ethBalance;
 
   const {
     writeContract,
@@ -487,21 +436,9 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     refetchBacking();
     refetchLastPrice();
 
-    // Refetch user data for all tokens
-    refetchEggsUserLoan();
-    refetchEggsUserBalance();
+    refetchUserLoan();
+    refetchUserEggsBalance();
     refetchEthBalance();
-    
-    // Only refetch if contracts are available
-    if (TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000") {
-      refetchYolkUserLoan();
-      refetchYolkUserBalance();
-    }
-    
-    if (TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000") {
-      refetchNestUserLoan();
-      refetchNestUserBalance();
-    }
   };
   // console.log(isSuccess);
   useEffect(() => {
@@ -550,8 +487,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
         userData,
         
         // Legacy compatibility
-        userLoan: eggsUserLoan as { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined,
-        userEggsBalance: eggsUserBalance && eggsUserBalance > BigInt(1000) ? eggsUserBalance : undefined,
+        userLoan: userLoan as { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined,
+        userEggsBalance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
         userSonicBalance: ethBalance,
 
         // Actions

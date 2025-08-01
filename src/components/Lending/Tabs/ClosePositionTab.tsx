@@ -38,8 +38,8 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
   const eggs = userData[tokenType].balance;
   const loanData = userData[tokenType].loan;
 
-  const borrowed = loanData ? Number(formatEther(loanData.borrowed)) : 0;
-  const collateral = loanData ? Number(formatEther(loanData.collateral)) : 0;
+  const borrowed = loanData ? Number(formatEther(loanData[1])) : 0;
+  const collateral = loanData ? Number(formatEther(loanData[0])) : 0;
   const { sonic: collateralInSonic } = useConverter(loanData ? loanData[0] : 0);
   const _maxRemovable =
     Number(formatEther(collateralInSonic || BigInt(0))) * 0.99 - borrowed;
