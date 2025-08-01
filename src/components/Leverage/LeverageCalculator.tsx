@@ -28,7 +28,7 @@ import { useEggsData } from "../../providers/data-provider";
 import useConverter from "../../hooks/useConverter";
 import { auroraColors, auroraBorderRadius } from "../../themes/aurora";
 
-export const LeverageCalculator = ({tokenType: 'eggs' | 'yolk' | 'nest' }) => {
+export const LeverageCalculator = ({tokenType}) => {
     console.log(tokenType);
   const theme = useTheme();
   const [_sonicAmount, setSonicAmount] = useState("0");
