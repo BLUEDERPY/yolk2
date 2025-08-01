@@ -199,7 +199,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Determine token type from tokenData
   const tokenType: TokenType = tokenData ? getTokenTypeFromSymbol(tokenData.symbol) : 'eggs';
   const currentTokenData = userData[tokenType];
-console.log(tokenType)
   const userEggsBalance = currentTokenData.balance;
   const userSonicBalance = currentTokenData.backingBalance;
   const loan = currentTokenData.loan;
@@ -430,7 +429,7 @@ console.log(tokenType)
         );
 
       case "leverage":
-        return <LeverageCalculator  tokenType={tokenType}/>;
+        return <LeverageCalculator tokenType={tokenType}/>;
 
       default:
         return (
