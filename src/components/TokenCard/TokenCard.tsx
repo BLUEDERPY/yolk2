@@ -699,7 +699,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Box sx={{ height: {xs: 'auto', md: 575}, mb: 2 }}>
                     <TokenChart
                       data={tokenData?.chartData}
-                      timeframe={defaultTimeframe}
+                      timeframe="7d"
                       showVolume={true}
                       priceChangeColor={priceChangeColor}
                       compact={false}
@@ -718,7 +718,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Box sx={{ flex: 1, display: { xs: "none", md: "block" }, pt: 3 }}>
                     <TokenChart
                       data={tokenData?.chartData}
-                      timeframe={defaultTimeframe}
+                      timeframe="7d"
                       showVolume={true}
                       priceChangeColor={priceChangeColor}
                       compact={false}
