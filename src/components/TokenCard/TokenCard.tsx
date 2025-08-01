@@ -401,6 +401,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   </Box>
                   
                   <BorrowInputs
+                     tokenType={tokenType}
                     max={max}
                     setBorrowAmount={setBorrowAmount}
                     duration={duration}
@@ -410,13 +411,15 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   />
                   <Box sx={{ my: 2 }}>
                     <CollateralDisplay
+                       tokenType={tokenType}
                       collateralRequired={collateralRequired || 0}
                       borrowAmount={borrowAmount}
                       tokenConfig={tokenConfig}
                     />
-                    <FeesDisplay fees={fees} duration={duration} />
+                    <FeesDisplay  tokenType={tokenType} fees={fees} duration={duration} />
                   </Box>
                   <BorrowActions
+                     tokenType={tokenType}
                     isValid={isValid}
                     errorMessage={errorMessage}
                     onBorrow={handleBorrow}
