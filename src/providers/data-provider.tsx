@@ -234,6 +234,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     args: [userAddress],
     enabled: isConnected,
   });
+  console.log(eggsUserLoan);
 
   const { data: eggsUserBalance, refetch: refetchEggsUserBalance } =
     useReadContract({
