@@ -29,6 +29,7 @@ import useConverter from "../../hooks/useConverter";
 import { auroraColors, auroraBorderRadius } from "../../themes/aurora";
 
 export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
+    console.log(tokenType);
   const theme = useTheme();
   const [_sonicAmount, setSonicAmount] = useState("0");
   const sonicAmount = Number(_sonicAmount) >= 0 ? _sonicAmount : "0";
