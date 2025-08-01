@@ -32,7 +32,10 @@ interface LeverageCalculatorProps {
   tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
-export const LeverageCalculator = ({tokenType}) => {
+export const LeverageCalculator = ({
+ 
+  tokenType = 'eggs',
+}: LeverageCalculatorProps) => {
     console.log(tokenType);
   const theme = useTheme();
   const [_sonicAmount, setSonicAmount] = useState("0");
