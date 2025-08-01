@@ -104,7 +104,7 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
   const additonalFee = getInterestFeeInEggs(
     borrowed || parseEther("0"),
     borrowed
-      ? dateDiff(new Date(Number(loan[2]) * 1000), new Date()) - duration - 1
+      ? dateDiff(new Date(Number(loan.duration) * 1000), new Date()) - duration - 1
       : 0
   );
   const isTransactionOccuring = useMemo(() => {
