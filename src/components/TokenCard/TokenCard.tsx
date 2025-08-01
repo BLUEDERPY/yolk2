@@ -314,6 +314,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   </Box>
                   
                   <SwapInput
+                     tokenType={tokenType}
                     label={tradeDirection === "buy" ? tokenConfig.backingTitle : tokenConfig.tokenName}
                     value={tradeAmount}
                     onChange={setTradeAmount}
