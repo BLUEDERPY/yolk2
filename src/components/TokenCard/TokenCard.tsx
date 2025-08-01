@@ -535,7 +535,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Link
                     component="button"
                     onClick={() => {
-                      console.log("Full Trade button clicked");
                       handleActionClick("trade");
                     }}
                     sx={{
@@ -568,7 +567,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     <Link
                       component="button"
                       onClick={() => {
-                        console.log("Full Lend button clicked");
                         handleActionClick("leverage");
                       }}
                       sx={{
@@ -600,7 +598,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                       <Link
                         component="button"
                         onClick={() => {
-                          console.log("Full Lend button clicked");
                           handleActionClick("lend");
                         }}
                         sx={{
@@ -632,7 +629,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                       <Link
                         component="button"
                         onClick={() => {
-                          console.log("Full Leverage button clicked");
                           handleActionClick("leverage");
                         }}
                         sx={{
@@ -666,7 +662,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Link
                     component="button"
                     onClick={() => {
-                      console.log("Full Chart button clicked");
                       handleActionClick("chart");
                     }}
                     sx={{
@@ -794,7 +789,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                 variant="outlined"
                 startIcon={<ArrowUpDown size={16} />}
                 onClick={() => {
-                  console.log("Compact Trade button clicked");
                   handleActionClick("trade");
                 }}
                 sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}
@@ -807,7 +801,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   variant="outlined"
                   startIcon={<TrendingUp size={16} />}
                   onClick={() => {
-                    console.log("Compact Leverage button clicked");
                     handleActionClick("leverage");
                   }}
                   sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}
@@ -821,7 +814,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     variant="outlined"
                     startIcon={<Coins size={16} />}
                     onClick={() => {
-                      console.log("Compact Lend button clicked");
                       handleActionClick("lend");
                     }}
                     sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}
@@ -833,7 +825,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     variant="outlined"
                     startIcon={<TrendingUp size={16} />}
                     onClick={() => {
-                      console.log("Compact Leverage button clicked");
                       handleActionClick("leverage");
                     }}
                     sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}

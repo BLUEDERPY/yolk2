@@ -101,7 +101,6 @@ export const TokenChart: React.FC<TokenChartProps> = ({
             series?.update(__data[__data.length - 1]);
             setData((s) => [...s, rawData[0]]);
           } catch {
-            // Chart lag handling
           }
         }
       }
