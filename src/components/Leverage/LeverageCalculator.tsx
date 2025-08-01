@@ -126,7 +126,8 @@ export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' 
       }}
     >
       {loan &&
-      loan.borrowed > 0 ? (
+      loan.borrowed > 0 &&
+      new Date(Number(loan.endDate) * 1000) >= new Date() ? (
         <Box
           sx={{
             display: "grid",
