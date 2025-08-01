@@ -28,7 +28,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-export const LendingTabs = () => {
+export const LendingTabs = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
 
@@ -70,16 +70,16 @@ export const LendingTabs = () => {
         }}
       >
         <TabPanel value={value} index={0}>
-          <BorrowMoreTab />
+          <BorrowMoreTab tokenType={tokenType} />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <RemoveCollateralTab />
+          <RemoveCollateralTab tokenType={tokenType} />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <ExtendLoanTab />
+          <ExtendLoanTab tokenType={tokenType} />
         </TabPanel>
         <TabPanel value={value} index={3}>
-          <ClosePositionTab />
+          <ClosePositionTab tokenType={tokenType} />
         </TabPanel>
       </Box>
     </Stack>

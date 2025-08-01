@@ -9,7 +9,7 @@ import { getInterestFeeInEggs } from "../../../utils/leverageCalculations";
 import { useEggsData } from "../../../providers/data-provider";
 import useConverter from "../../../hooks/useConverter";
 
-export const useLendingState = () => {
+export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') => {
   const { status, setStatus } = useContext(GlobalContext);
 
   const {
@@ -23,9 +23,9 @@ export const useLendingState = () => {
     borrowMore,
   } = useEggsData();
   
-  // Use eggs data for now - can be made configurable later
-  const loan = userData.eggs.loan;
-  const balance = userData.eggs.balance;
+  // Use specified token data
+  const loan = userData[tokenType].loan;
+  const balance = userData[tokenType].balance;
   
   const borrowed = loan ? loan[1] : undefined;
   const collateral = loan ? loan[0] : undefined;
@@ -178,8 +178,8 @@ export const useLendingState = () => {
 
   const handleBorrow = async () => {
     // console.log(formatEther(totalConverted), duration);
-    if (borrowed && borrowed > BigInt(0)) borrowMore(borrowAmount);
-    else borrow(borrowAmount, duration);
+    if (borrowed && borrowed > BigInt(0)) borrowMore(borrowAmount, tokenType);
+    else borrow(borrowAmount, duration, tokenType);
   };
   const onRepay = async () => {
     borrow(borrowAmount, duration);

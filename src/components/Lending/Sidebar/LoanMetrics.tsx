@@ -8,13 +8,13 @@ import chroma from "chroma-js";
 import useConverter from "../../../hooks/useConverter";
 import { useEggsData } from "../../../providers/data-provider";
 
-export const LoanMetrics: React.FC = () => {
+export const LoanMetrics: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ tokenType = 'eggs' }) => {
   const theme = useTheme();
 
   const { userData } = useEggsData();
   
-  // Use eggs loan data for now
-  const loanData = userData.eggs.loan;
+  // Use specified token loan data
+  const loanData = userData[tokenType].loan;
 
   const { sonic: conversionRate } = useConverter(
     loanData ? loanData[0] : parseEther("0")

@@ -48,6 +48,23 @@ import { BorrowActions } from "../Lending/BorrowActions";
 import { useLendingState } from "../Lending/hooks/useLendingState";
 import { BalancesWidget } from "../Lending/BalancesWidget";
 
+// Token type mapping
+type TokenSymbol = 'usdc' | 'eggs' | 'sonic' | 'yolk' | 'nest';
+type TokenType = 'eggs' | 'yolk' | 'nest';
+
+const getTokenTypeFromSymbol = (symbol: string): TokenType => {
+  switch (symbol.toLowerCase()) {
+    case 'usdc':
+    case 'yolk':
+      return 'yolk';
+    case 'eggs':
+    case 'nest':
+      return 'nest';
+    default:
+      return 'eggs';
+  }
+};
+
 // Simple line chart component for compact view
 const SimpleChart: React.FC<{
   data: ChartDataPoint[];
@@ -179,23 +196,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     isSuccess: isTradeSuccess,
   } = useEggsData();
 
-  // Get token-specific data based on tokenData or default to eggs
-  const getTokenData = () => {
-    if (!tokenData) return userData.eggs;
-    
-    switch (tokenData.symbol.toLowerCase()) {
-      case 'usdc':
-      case 'yolk':
-        return userData.yolk;
-      case 'eggs':
-      case 'nest':
-        return userData.nest;
-      default:
-        return userData.eggs;
-    }
-  };
+  // Determine token type from tokenData
+  const tokenType: TokenType = tokenData ? getTokenTypeFromSymbol(tokenData.symbol) : 'eggs';
+  const currentTokenData = userData[tokenType];
 
-  const currentTokenData = getTokenData();
   const userEggsBalance = currentTokenData.balance;
   const userSonicBalance = currentTokenData.backingBalance;
   const loan = currentTokenData.loan;
@@ -258,9 +262,9 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
   const handleTradeSubmit = () => {
     if (tradeDirection === "buy") {
-      buy(tradeAmount);
+      buy(tradeAmount, tokenType);
     } else {
-      sell(parseEther(tradeAmount));
+      sell(tradeAmount, tokenType);
     }
   };
 

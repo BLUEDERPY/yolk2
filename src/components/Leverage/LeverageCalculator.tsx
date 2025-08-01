@@ -28,7 +28,7 @@ import { useEggsData } from "../../providers/data-provider";
 import useConverter from "../../hooks/useConverter";
 import { auroraColors, auroraBorderRadius } from "../../themes/aurora";
 
-export const LeverageCalculator = () => {
+export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
   const theme = useTheme();
   const [_sonicAmount, setSonicAmount] = useState("0");
   const sonicAmount = Number(_sonicAmount) >= 0 ? _sonicAmount : "0";
@@ -41,9 +41,9 @@ export const LeverageCalculator = () => {
     estimatedGas,
   } = useEggsData();
   
-  // Use eggs data for now
-  const balance = userData.eggs.backingBalance;
-  const loan = userData.eggs.loan;
+  // Use specified token data
+  const balance = userData[tokenType].backingBalance;
+  const loan = userData[tokenType].loan;
   
   const sonicBalance = balance ? balance.formatted : "0";
 
@@ -76,7 +76,7 @@ export const LeverageCalculator = () => {
   const leverageX = Number(sonicAmount) / loanFee;
 
   const handleLeveragePosition = async () => {
-    leverage(parseEther(sonicAmount), duration, feeWithOverCol);
+    leverage(parseEther(sonicAmount), duration, feeWithOverCol, tokenType);
   };
 
   useEffect(() => {

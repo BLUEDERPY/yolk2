@@ -15,7 +15,7 @@ import LoadingScreen from "../../LoadingScreen";
 import useConverter from "../../../hooks/useConverter";
 import { useEggsData } from "../../../providers/data-provider";
 
-export const RemoveCollateralTab = () => {
+export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
   const [removalAmount, setRemovalAmount] = useState("0");
 
   const {
@@ -26,10 +26,10 @@ export const RemoveCollateralTab = () => {
     removeCollateral,
   } = useEggsData();
 
-  // Use eggs data for now
-  const balance = userData.eggs.backingBalance;
-  const loanData = userData.eggs.loan;
-  const eggs = userData.eggs.balance;
+  // Use specified token data
+  const balance = userData[tokenType].backingBalance;
+  const loanData = userData[tokenType].loan;
+  const eggs = userData[tokenType].balance;
 
   const collateral = loanData ? Number(formatEther(loanData[0])) : 0;
 
@@ -41,7 +41,7 @@ export const RemoveCollateralTab = () => {
   const remainingCollateral = collateral - Number(removalAmount);
 
   const handleRemove = async () => {
-    removeCollateral(removalAmount);
+    removeCollateral(removalAmount, tokenType);
   };
 
   return (

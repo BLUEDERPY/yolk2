@@ -10,7 +10,7 @@ import LoadingScreen from "../LoadingScreen";
 import { useEggsData } from "../../providers/data-provider";
 import useConverter from "../../hooks/useConverter";
 
-export const SwapForm: React.FC = () => {
+export const SwapForm: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ tokenType = 'eggs' }) => {
   const [fromAmount, setFromAmount] = useState<string>("");
   //const [toAmount, setToAmount] = useState<string>("");
   const [isEggsToSonic, setIsEggsToSonic] = useState(true);
@@ -25,9 +25,9 @@ export const SwapForm: React.FC = () => {
     isMintedOut,
   } = useEggsData();
 
-  // Use eggs data for now
-  const eggsBalance = userData.eggs.balance;
-  const balance = userData.eggs.backingBalance;
+  // Use specified token data
+  const eggsBalance = userData[tokenType].balance;
+  const balance = userData[tokenType].backingBalance;
 
   const { sonic: conversionRateToSonic, eggs: conversionRate } = useConverter(
     parseEther(fromAmount.toString() || "0")
@@ -55,10 +55,10 @@ export const SwapForm: React.FC = () => {
 
   const handleSwapDirection = () => {};
   const handleBuy = () => {
-    buy(fromAmount);
+    buy(fromAmount, tokenType);
   };
   const handleSell = () => {
-    sell(parseEther(fromAmount.toString()));
+    sell(fromAmount, tokenType);
   };
 
   useEffect(() => {

@@ -20,7 +20,7 @@ import { useEggsData } from "../../../providers/data-provider";
 
 type CloseMethod = "standard" | "flash";
 
-export const ClosePositionTab = () => {
+export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
   const [closeMethod, setCloseMethod] = useState<CloseMethod>("standard");
   const [repayAmount, setRepayAmount] = useState<string>("0");
 
@@ -33,10 +33,10 @@ export const ClosePositionTab = () => {
     userData,
   } = useEggsData();
 
-  // Use eggs data for now
-  const balance = userData.eggs.backingBalance;
-  const eggs = userData.eggs.balance;
-  const loanData = userData.eggs.loan;
+  // Use specified token data
+  const balance = userData[tokenType].backingBalance;
+  const eggs = userData[tokenType].balance;
+  const loanData = userData[tokenType].loan;
 
   const borrowed = loanData ? Number(formatEther(loanData[1])) : 0;
   const collateral = loanData ? Number(formatEther(loanData[0])) : 0;
@@ -47,14 +47,14 @@ export const ClosePositionTab = () => {
 
   const handleClose = async () => {
     if (Number(repayAmount) === borrowed) {
-      closePosition();
+      closePosition(tokenType);
     } else {
-      repay(parseEther(repayAmount));
+      repay(parseEther(repayAmount), tokenType);
     }
   };
 
   const handleFlashClose = async () => {
-    flashClosePosition();
+    flashClosePosition(tokenType);
   };
 
   const handleMaxRepay = () => {

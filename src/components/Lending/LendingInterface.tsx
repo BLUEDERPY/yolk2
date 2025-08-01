@@ -26,7 +26,7 @@ import { AlertTriangle } from "lucide-react";
 import { LendingTabs } from "./LendingTabs";
 import { useEggsData } from "../../providers/data-provider";
 
-export const LendingInterface: React.FC = () => {
+export const LendingInterface: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ tokenType = 'eggs' }) => {
   const {
     borrowAmount,
     setBorrowAmount,
@@ -44,7 +44,7 @@ export const LendingInterface: React.FC = () => {
     onExtend,
     onClose,
     max,
-  } = useLendingState();
+  } = useLendingState(tokenType);
   const { userLoan } = useEggsData();
 
   const borrowedSonic = userLoan && userLoan[1] ? Number(formatEther(userLoan[1])) : 0;
@@ -86,7 +86,7 @@ export const LendingInterface: React.FC = () => {
         >
           {/* Borrow More Section */}
 
-          <LendingTabs />
+          <LendingTabs tokenType={tokenType} />
 
           {/* Close Position Dialog */}
           <Dialog
@@ -135,7 +135,7 @@ export const LendingInterface: React.FC = () => {
               height: "100%",
             }}
           >
-            <LoanMetrics />
+            <LoanMetrics tokenType={tokenType} />
           </Box>
         </Box>
       ) : isTransactionOccuring ? (

@@ -13,7 +13,7 @@ import {
   usePrepareTransactionRequest,
   useSimulateContract,
 } from "wagmi";
-import { EggsContract, Gauge } from "./contracts";
+import { EggsContract, Gauge, TokenContracts, TokenType } from "./contracts";
 import { Address, formatEther, parseEther } from "viem";
 import useWriteContractAndWaitForConfirm from "../hooks/useWriteContractAndWaitForConfirm";
 import { useEstimateGas } from "../hooks/useEstimateGas";
@@ -60,19 +60,19 @@ interface EggsContextType {
   userSonicBalance: any | undefined;
   totalMinted: bigint | undefined;
 
-  // Actions
-  refetch: () => void;
-  buy: (sonicAmount: string) => void;
-  sell: (eggsAmount: string) => void;
-  extendLoan: (eggsAmount: string, duration: number) => void;
-  removeCollateral: (eggsAmount: string) => void;
-  borrow: (eggsAmount: bigint, duration: number) => void;
-  borrowMore: (eggsAmount: bigint) => void;
-  leverage: () => void;
+  // Actions - now require token parameter
+  refetch: (token?: TokenType) => void;
+  buy: (sonicAmount: string, token?: TokenType) => void;
+  sell: (eggsAmount: string, token?: TokenType) => void;
+  extendLoan: (eggsAmount: string, duration: number, token?: TokenType) => void;
+  removeCollateral: (eggsAmount: string, token?: TokenType) => void;
+  borrow: (eggsAmount: bigint, duration: number, token?: TokenType) => void;
+  borrowMore: (eggsAmount: bigint, token?: TokenType) => void;
+  leverage: (sonic: any, days: any, fee: any, token?: TokenType) => void;
   estimatedGas: bigint | undefined;
-  closePosition: () => void;
-  repay: (sonic: bigint) => void;
-  flashClosePosition: () => void;
+  closePosition: (token?: TokenType) => void;
+  repay: (sonic: bigint, token?: TokenType) => void;
+  flashClosePosition: (token?: TokenType) => void;
   isSuccess: boolean | undefined;
   isConfirming: boolean | undefined;
   isPending: boolean | undefined;
@@ -141,6 +141,9 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { address: userAddress, isConnected } = useAccount();
+
+  // Helper function to get contract config for a token
+  const getTokenContract = (token: TokenType = 'eggs') => TokenContracts[token];
 
   // Protocol data reads
   const { data: totalMinted, refetch: refetchTotalMinted } = useReadContract({
@@ -284,44 +287,53 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   } = useWriteContractAndWaitForConfirm("");
   const { abi, address } = EggsContract;
 
-  const buy = (sonicAmount: string) => {
+  const buy = (sonicAmount: string, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "buy",
       args: [userAddress],
       value: parseEther(sonicAmount),
     });
   };
-  const sell = (eggAmount: string) => {
+  
+  const sell = (eggAmount: string, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
+    const tokenBalance = userData[token].balance;
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "sell",
-      args: [userEggsBalance < eggAmount ? userEggsBalance : eggAmount],
+      args: [tokenBalance && tokenBalance < parseEther(eggAmount) ? tokenBalance : parseEther(eggAmount)],
     });
   };
 
-  const claim = () => {
+  const claim = (token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "getReward",
       args: [userAddress, ["0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38"]],
     });
   };
-  const borrow = (sonicAmount: bigint, days: number) => {
+  
+  const borrow = (sonicAmount: bigint, days: number, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "borrow",
       args: [sonicAmount, days],
     });
   };
-  const borrowMore = (sonicAmount: bigint) => {
+  
+  const borrowMore = (sonicAmount: bigint, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "borrowMore",
       args: [sonicAmount],
     });
@@ -336,58 +348,69 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     value: "0.01",
   });*/
 
-  const leverage = (sonic, days, _fee) => {
+  const leverage = (sonic, days, _fee, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     //// // console.log(formatEther(sonic || "0"));
     //// // console.log(formatEther(_fee || "0"));
     console.log(days);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "leverage",
       args: [sonic, days],
       value: _fee,
     });
   };
-  const closePosition = () => {
+  
+  const closePosition = (token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
+    const loan = userData[token].loan;
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "closePosition",
       args: [],
-      value: userLoan[1],
+      value: loan ? loan.borrowed : 0,
     });
   };
-  const repay = (sonic: BigInt) => {
+  
+  const repay = (sonic: BigInt, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "repay",
       args: [],
       value: sonic,
     });
   };
 
-  const flashClosePosition = () => {
+  const flashClosePosition = (token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "flashClosePosition",
       args: [],
     });
   };
-  const removeCollateral = (amount: string) => {
+  
+  const removeCollateral = (amount: string, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     const collateral = parseEther(amount.toString());
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "removeCollateral",
       args: [collateral],
     });
   };
-  const extendLoan = (days: number, fee: string) => {
+  
+  const extendLoan = (days: number, fee: string, token: TokenType = 'eggs') => {
+    const contract = getTokenContract(token);
     writeContract({
-      abi,
-      address: address as Address,
+      abi: contract.abi,
+      address: contract.address as Address,
       functionName: "extendLoan",
       args: [days],
       value: parseEther(fee),
@@ -465,7 +488,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
         userSonicBalance: ethBalance,
 
         // Actions
-        refetch: refetchAll,
+        refetch: (token?: TokenType) => refetchAll(), // Token parameter for future use
       }}
     >
       {children}

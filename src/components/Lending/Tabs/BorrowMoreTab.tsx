@@ -8,7 +8,7 @@ import { useLendingState } from "../hooks/useLendingState";
 import { PositionSummary } from "../components/PositionSummary";
 import LoadingScreen from "../../LoadingScreen";
 
-export const BorrowMoreTab = () => {
+export const BorrowMoreTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
   const {
     borrowAmount,
     setBorrowAmount,
@@ -24,7 +24,7 @@ export const BorrowMoreTab = () => {
     balance,
     minDuration,
     max,
-  } = useLendingState();
+  } = useLendingState(tokenType);
 
   return (
     <Stack spacing={0} minHeight={{ xs: 0, sm: "479px" }} position={"relative"} sx={{ height: '100%' }}>

@@ -777,6 +777,34 @@ export const EggsContract = {
     { type: "error", name: "ReentrancyGuardReentrantCall", inputs: [] },
   ],
 };
+
+// Token contract configurations
+export const TokenContracts = {
+  eggs: {
+    address: "0xf26Ff70573ddc8a90Bd7865AF8d7d70B8Ff019bC",
+    abi: EggsContract.abi,
+    tokenName: "EGGS",
+    backingToken: "S",
+    backingTitle: "Sonic",
+  },
+  yolk: {
+    address: "0x0000000000000000000000000000000000000000", // TODO: Add actual YOLK contract address
+    abi: EggsContract.abi, // TODO: Update with actual YOLK ABI if different
+    tokenName: "YOLK",
+    backingToken: "USDC",
+    backingTitle: "USDC",
+  },
+  nest: {
+    address: "0x0000000000000000000000000000000000000000", // TODO: Add actual NEST contract address
+    abi: EggsContract.abi, // TODO: Update with actual NEST ABI if different
+    tokenName: "NEST",
+    backingToken: "EGGS",
+    backingTitle: "Eggs",
+  },
+};
+
+export type TokenType = keyof typeof TokenContracts;
+
 export const Gauge = {
   address: "0x417c98Fd55D81b96aC2B217004f1e43FD8d8a0a1", //"0x5FbDB2315678afecb367f032d93F642f64180aa3",
   abi: [

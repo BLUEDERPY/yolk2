@@ -8,7 +8,7 @@ import LoadingScreen from "../../LoadingScreen";
 import { useEggsData } from "../../../providers/data-provider";
 import { getInterestFeeInEggs } from "../../../utils/leverageCalculations";
 
-export const ExtendLoanTab = () => {
+export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
   const [extensionDays, setExtensionDays] = useState(1);
 
   const {
@@ -18,10 +18,10 @@ export const ExtendLoanTab = () => {
     extendLoan,
   } = useEggsData();
   
-  // Use eggs data for now
-  const loanData = userData.eggs.loan;
-  const balance = userData.eggs.backingBalance;
-  const eggs = userData.eggs.balance;
+  // Use specified token data
+  const loanData = userData[tokenType].loan;
+  const balance = userData[tokenType].backingBalance;
+  const eggs = userData[tokenType].balance;
   
   function dateDiff(date1, date2) {
     const msDiff = date1.getTime() - date2.getTime();
@@ -115,7 +115,7 @@ export const ExtendLoanTab = () => {
           <Box sx={{ mt: 'auto' }}>
             <Button
               variant="contained"
-              onClick={() => extendLoan(extensionDays, formatEther(fee))}
+              onClick={() => extendLoan(extensionDays, formatEther(fee), tokenType)}
               disabled={extensionDays <= 0 || balance?.value < fee}
               fullWidth
             >
