@@ -16,8 +16,7 @@ export const SwapForm: React.FC = () => {
   const [isEggsToSonic, setIsEggsToSonic] = useState(true);
 
   const {
-    userEggsBalance: eggsBalance,
-    userSonicBalance: balance,
+    userData,
     buy,
     sell,
     isConfirming,
@@ -25,6 +24,10 @@ export const SwapForm: React.FC = () => {
     isSuccess,
     isMintedOut,
   } = useEggsData();
+
+  // Use eggs data for now
+  const eggsBalance = userData.eggs.balance;
+  const balance = userData.eggs.backingBalance;
 
   const { sonic: conversionRateToSonic, eggs: conversionRate } = useConverter(
     parseEther(fromAmount.toString() || "0")

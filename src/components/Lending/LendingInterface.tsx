@@ -47,7 +47,7 @@ export const LendingInterface: React.FC = () => {
   } = useLendingState();
   const { userLoan } = useEggsData();
 
-  const borrowedSonic = userLoan ? Number(formatEther(userLoan[1])) : 0;
+  const borrowedSonic = userLoan && userLoan[1] ? Number(formatEther(userLoan[1])) : 0;
 
   const hasPosition = borrowedSonic > 0;
 

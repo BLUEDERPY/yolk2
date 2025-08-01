@@ -5,7 +5,21 @@ import { nFormatter } from "../../utils/formatters";
 import { useTheme } from "@mui/material/styles";
 import { Wallet, Coins } from "lucide-react";
 
-export const BalancesWidget: React.FC<{}> = ({ sonic, eggs }) => {
+interface BalancesWidgetProps {
+  sonic: any;
+  eggs: bigint | undefined;
+  tokenConfig?: {
+    tokenName: string;
+    backingToken: string;
+    backingTitle: string;
+  };
+}
+
+export const BalancesWidget: React.FC<BalancesWidgetProps> = ({ 
+  sonic, 
+  eggs, 
+  tokenConfig = { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" }
+}) => {
   const theme = useTheme();
   
   return (
@@ -52,7 +66,7 @@ export const BalancesWidget: React.FC<{}> = ({ sonic, eggs }) => {
               display: 'block'
             }}
           >
-            EGGS
+            {tokenConfig.tokenName}
           </Typography>
           <Typography
             variant="body2"
@@ -105,7 +119,7 @@ export const BalancesWidget: React.FC<{}> = ({ sonic, eggs }) => {
               display: 'block'
             }}
           >
-            SONIC
+            {tokenConfig.backingTitle}
           </Typography>
           <Typography
             variant="body2"

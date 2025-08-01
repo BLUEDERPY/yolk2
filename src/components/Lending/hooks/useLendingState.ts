@@ -13,8 +13,7 @@ export const useLendingState = () => {
   const { status, setStatus } = useContext(GlobalContext);
 
   const {
-    userLoan: loan,
-    userEggsBalance: balance,
+    userData,
     borrow,
     isPending,
     isConfirming,
@@ -23,6 +22,11 @@ export const useLendingState = () => {
     isUserError,
     borrowMore,
   } = useEggsData();
+  
+  // Use eggs data for now - can be made configurable later
+  const loan = userData.eggs.loan;
+  const balance = userData.eggs.balance;
+  
   const borrowed = loan ? loan[1] : undefined;
   const collateral = loan ? loan[0] : undefined;
   const minDuration = useMemo(() => {

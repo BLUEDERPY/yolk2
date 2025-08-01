@@ -35,16 +35,29 @@ interface EggsContextType {
   loanByDay1: bigint | undefined;
   nextReward: bigint | undefined;
 
-  // User data
-  userLoan:
-    | {
-        collateral: bigint;
-        borrowed: bigint;
-        endDate: bigint;
-      }
-    | undefined;
+  // User data for multiple tokens
+  userData: {
+    eggs: {
+      loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
+      balance: bigint | undefined;
+      backingBalance: any | undefined;
+    };
+    yolk: {
+      loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
+      balance: bigint | undefined;
+      backingBalance: any | undefined;
+    };
+    nest: {
+      loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
+      balance: bigint | undefined;
+      backingBalance: any | undefined;
+    };
+  };
+  
+  // Legacy compatibility - will be deprecated
+  userLoan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
   userEggsBalance: bigint | undefined;
-  userSonicBalance: bigint | undefined;
+  userSonicBalance: any | undefined;
   totalMinted: bigint | undefined;
 
   // Actions
@@ -76,6 +89,23 @@ const EggsContext = createContext<EggsContextType>({
   totalCollateral: undefined,
   backing: undefined,
   lastPrice: undefined,
+  userData: {
+    eggs: {
+      loan: undefined,
+      balance: undefined,
+      backingBalance: undefined,
+    },
+    yolk: {
+      loan: undefined,
+      balance: undefined,
+      backingBalance: undefined,
+    },
+    nest: {
+      loan: undefined,
+      balance: undefined,
+      backingBalance: undefined,
+    },
+  },
   userLoan: undefined,
   userEggsBalance: undefined,
   userSonicBalance: undefined,
@@ -223,6 +253,25 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     address: userAddress,
     enabled: isConnected,
   });
+
+  // Create userData structure
+  const userData = {
+    eggs: {
+      loan: userLoan as { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined,
+      balance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
+      backingBalance: ethBalance,
+    },
+    yolk: {
+      loan: undefined, // TODO: Add yolk loan data when available
+      balance: undefined, // TODO: Add yolk balance when available
+      backingBalance: undefined, // TODO: Add USDC balance when available
+    },
+    nest: {
+      loan: undefined, // TODO: Add nest loan data when available
+      balance: undefined, // TODO: Add nest balance when available
+      backingBalance: undefined, // TODO: Add eggs balance when available
+    },
+  };
 
   const {
     writeContract,
@@ -407,14 +456,12 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
         nextReward,
         totalMinted,
 
-        // User data
-        userLoan: userLoan as
-          | { collateral: bigint; borrowed: bigint; endDate: bigint }
-          | undefined,
-        userEggsBalance:
-          userEggsBalance && userEggsBalance > BigInt(1000)
-            ? userEggsBalance
-            : undefined,
+        // Multi-token user data
+        userData,
+        
+        // Legacy compatibility
+        userLoan: userLoan as { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined,
+        userEggsBalance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
         userSonicBalance: ethBalance,
 
         // Actions

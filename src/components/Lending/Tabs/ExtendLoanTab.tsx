@@ -12,13 +12,17 @@ export const ExtendLoanTab = () => {
   const [extensionDays, setExtensionDays] = useState(1);
 
   const {
-    userLoan: loanData,
-    userSonicBalance: balance,
-    userEggsBalance: eggs,
+    userData,
     isConfirming,
     isPending,
     extendLoan,
   } = useEggsData();
+  
+  // Use eggs data for now
+  const loanData = userData.eggs.loan;
+  const balance = userData.eggs.backingBalance;
+  const eggs = userData.eggs.balance;
+  
   function dateDiff(date1, date2) {
     const msDiff = date1.getTime() - date2.getTime();
     const days = Math.floor(msDiff / (1000 * 60 * 60 * 24));

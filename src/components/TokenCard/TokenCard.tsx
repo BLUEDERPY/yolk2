@@ -171,15 +171,34 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
   // Get real trading data
   const {
-    userEggsBalance,
-    userSonicBalance,
+    userData,
     buy,
     sell,
-    userLoan: loan,
     isPending: isTrading,
     isConfirming: isConfirmingTrade,
     isSuccess: isTradeSuccess,
   } = useEggsData();
+
+  // Get token-specific data based on tokenData or default to eggs
+  const getTokenData = () => {
+    if (!tokenData) return userData.eggs;
+    
+    switch (tokenData.symbol.toLowerCase()) {
+      case 'usdc':
+      case 'yolk':
+        return userData.yolk;
+      case 'eggs':
+      case 'nest':
+        return userData.nest;
+      default:
+        return userData.eggs;
+    }
+  };
+
+  const currentTokenData = getTokenData();
+  const userEggsBalance = currentTokenData.balance;
+  const userSonicBalance = currentTokenData.backingBalance;
+  const loan = currentTokenData.loan;
 
   // Get lending state for the lending tab
   const {
@@ -533,7 +552,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             </IconButton>
                      {/* Balances Widget in header for full view */}
             {isExpanded && (
-              <BalancesWidget sonic={userSonicBalance} eggs={userEggsBalance} />
+              <BalancesWidget sonic={userSonicBalance} eggs={userEggsBalance} tokenConfig={tokenConfig} />
             )}
           </Box>
 

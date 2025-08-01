@@ -34,13 +34,17 @@ export const LeverageCalculator = () => {
   const sonicAmount = Number(_sonicAmount) >= 0 ? _sonicAmount : "0";
   const [duration, setDuration] = useState<number>(1);
   const {
-    userSonicBalance: balance,
-    userLoan: loan,
+    userData,
     isPending,
     isConfirming,
     leverage,
     estimatedGas,
   } = useEggsData();
+  
+  // Use eggs data for now
+  const balance = userData.eggs.backingBalance;
+  const loan = userData.eggs.loan;
+  
   const sonicBalance = balance ? balance.formatted : "0";
 
   const { sonic: conversionRate } = useConverter(parseEther("1"));

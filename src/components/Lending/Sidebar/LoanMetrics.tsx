@@ -11,7 +11,10 @@ import { useEggsData } from "../../../providers/data-provider";
 export const LoanMetrics: React.FC = () => {
   const theme = useTheme();
 
-  const { userLoan: loanData } = useEggsData();
+  const { userData } = useEggsData();
+  
+  // Use eggs loan data for now
+  const loanData = userData.eggs.loan;
 
   const { sonic: conversionRate } = useConverter(
     loanData ? loanData[0] : parseEther("0")

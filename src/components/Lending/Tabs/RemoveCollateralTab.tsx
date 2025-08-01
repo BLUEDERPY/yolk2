@@ -19,14 +19,17 @@ export const RemoveCollateralTab = () => {
   const [removalAmount, setRemovalAmount] = useState("0");
 
   const {
-    userSonicBalance: balance,
-    userLoan: loanData,
+    userData,
     isSuccess,
     isConfirming,
     isPending,
     removeCollateral,
-    userEggsBalance: eggs,
   } = useEggsData();
+
+  // Use eggs data for now
+  const balance = userData.eggs.backingBalance;
+  const loanData = userData.eggs.loan;
+  const eggs = userData.eggs.balance;
 
   const collateral = loanData ? Number(formatEther(loanData[0])) : 0;
 

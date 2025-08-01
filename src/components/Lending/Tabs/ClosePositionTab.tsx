@@ -30,10 +30,13 @@ export const ClosePositionTab = () => {
     isConfirming,
     isPending,
     flashClosePosition,
-    userSonicBalance: balance,
-    userEggsBalance: eggs,
-    userLoan: loanData,
+    userData,
   } = useEggsData();
+
+  // Use eggs data for now
+  const balance = userData.eggs.backingBalance;
+  const eggs = userData.eggs.balance;
+  const loanData = userData.eggs.loan;
 
   const borrowed = loanData ? Number(formatEther(loanData[1])) : 0;
   const collateral = loanData ? Number(formatEther(loanData[0])) : 0;
