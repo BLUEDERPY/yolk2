@@ -27,6 +27,10 @@ import LoadingScreen from "../LoadingScreen";
 import { useEggsData } from "../../providers/data-provider";
 import useConverter from "../../hooks/useConverter";
 import { auroraColors, auroraBorderRadius } from "../../themes/aurora";
+interface LeverageCalculatorProps {
+ 
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+}
 
 export const LeverageCalculator = ({tokenType}) => {
     console.log(tokenType);
