@@ -118,7 +118,7 @@ const MainPage = () => {
                     </Typography>
                     <Button
                       variant="contained"
-                     onClick={() => navigate("/tokens")}
+                      onClick={() => navigate("/tokens")}
                       endIcon={<ArrowRight />}
                       fullWidth
                     >
@@ -156,7 +156,7 @@ const MainPage = () => {
                     </Typography>
                     <Button
                       variant="contained"
-                     onClick={() => navigate("/tokens")}
+                      onClick={() => navigate("/tokens")}
                       endIcon={<ArrowRight />}
                       fullWidth
                     >
@@ -192,7 +192,7 @@ const MainPage = () => {
                     </Typography>
                     <Button
                       variant="contained"
-                     onClick={() => navigate("/tokens")}
+                      onClick={() => navigate("/tokens")}
                       endIcon={<ArrowRight />}
                       fullWidth
                     >
