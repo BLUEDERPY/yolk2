@@ -29,6 +29,7 @@ interface LeverageInputsProps {
   sonicBalance: string;
   onMaxClick: () => void;
   handleLeveragePosition: () => void;
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const LeverageInputs = ({
@@ -42,6 +43,7 @@ export const LeverageInputs = ({
   sonicBalance,
   onMaxClick,
   handleLeveragePosition,
+  tokenType = 'eggs',
 }: LeverageInputsProps) => {
   const isValidInput =
     Number(sonicAmount) > 0 && duration >= 0 && duration <= 365;
@@ -50,7 +52,11 @@ export const LeverageInputs = ({
     Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) +
       Number(duration + 1 || 1) * 24 * 60 * 60 * 1000
   );
-  const { userSonicBalance: sonic, userEggsBalance } = useEggsData();
+  const { userData } = useEggsData();
+  
+  const sonic = userData[tokenType].backingBalance;
+  const eggsBalance = userData[tokenType].balance;
+  
   return (
     <Stack
       spacing={3}

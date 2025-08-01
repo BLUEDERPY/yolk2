@@ -126,8 +126,8 @@ export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' 
       }}
     >
       {loan &&
-      loan[1] > 0 &&
-      new Date(formatEther(loan[2]) * 1000) <= new Date() ? (
+      loan.borrowed > 0 &&
+      new Date(Number(loan.endDate) * 1000) <= new Date() ? (
         <Box
           sx={{
             display: "grid",
@@ -137,7 +137,7 @@ export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' 
         >
           {/* Borrow More Section */}
 
-          <LendingTabs />
+          <LendingTabs tokenType={tokenType} />
 
           {/* Close Position Dialog */}
 
@@ -161,7 +161,7 @@ export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' 
               justifyContent: "center",
             }}
           >
-            <LoanMetrics />
+            <LoanMetrics tokenType={tokenType} />
           </Box>
         </Box>
       ) : (
@@ -190,6 +190,7 @@ export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' 
               sonicBalance={sonicBalance}
               onMaxClick={handleMaxClick}
               handleLeveragePosition={handleLeveragePosition}
+              tokenType={tokenType}
             />
           )}
           <Box
