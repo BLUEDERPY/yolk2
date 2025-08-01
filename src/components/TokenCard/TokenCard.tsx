@@ -435,7 +435,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       default:
         return (
           <TokenChart
-            type = tokenType
+            tokenType = tokenType
             data={tokenData?.chartData}
             timeframe={selectedTimeframe}
             showVolume={true}
