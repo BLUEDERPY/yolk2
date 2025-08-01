@@ -21,8 +21,8 @@ export const LoanMetrics: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = (
   );
 
   // Calculate values
-  const collateralEggs = loanData ? Number(formatEther(loanData.collateral)) : 0;
-  const borrowedSonic = loanData ? Number(formatEther(loanData.borrowed)) : 0;
+  const collateralEggs = loanData ? Number(formatEther(loanData.borrowed)) : 0;
+  const borrowedSonic = loanData ? Number(formatEther(loanData.collateral)) : 0;
   const borrowedSonicRaw = loanData ? loanData[1] : 0;
   //// // console.log(conversionRate);
   //// // console.log(borrowedSonicRaw);
