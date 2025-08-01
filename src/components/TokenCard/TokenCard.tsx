@@ -793,6 +793,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                 activeTab === "chart" ? (
                   <Box sx={{ height: {xs: 'auto', md: 575}, mb: 2 }}>
                     <TokenChart
+                       tokenType={tokenType}
                       data={tokenData?.chartData}
                       timeframe={selectedTimeframe}
                       showVolume={true}
