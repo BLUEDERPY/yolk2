@@ -430,7 +430,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
         );
 
       case "leverage":
-        return <LeverageCalculator  props={tokenType}/>;
+        return <LeverageCalculator  props={{tokenType}}/>;
 
       default:
         return (
