@@ -5,6 +5,8 @@ import { SwapForm } from "./SwapForm";
 interface SwapWidgetProps {
   tokenType?: 'eggs' | 'yolk' | 'nest';
 }
+
+export const SwapWidget: React.FC<SwapWidgetProps> = ({ tokenType = 'eggs' }) => {
   return (
     <Card
       sx={{
@@ -20,5 +22,3 @@ interface SwapWidgetProps {
     </Card>
   );
 };
-
-export const SwapWidget: React.FC<SwapWidgetProps> = ({ tokenType = 'eggs' }) => {
