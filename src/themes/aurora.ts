@@ -495,6 +495,27 @@ const getAuroraComponents = (theme: any) => ({
         '&:active': {
           transform: 'translateY(-1px) scale(1.01)',
         },
+        '&.Mui-disabled': {
+          background: theme.palette.mode === 'light' 
+            ? 'rgba(0, 0, 0, 0.12)'
+            : 'rgba(255, 255, 255, 0.12)',
+          color: theme.palette.mode === 'light'
+            ? 'rgba(0, 0, 0, 0.26)'
+            : 'rgba(255, 255, 255, 0.3)',
+          boxShadow: 'none',
+          transform: 'none',
+          cursor: 'not-allowed',
+          '&::before': {
+            display: 'none',
+          },
+          '&:hover': {
+            background: theme.palette.mode === 'light' 
+              ? 'rgba(0, 0, 0, 0.12)'
+              : 'rgba(255, 255, 255, 0.12)',
+            transform: 'none',
+            boxShadow: 'none',
+          },
+        },
       },
       contained: {
         background: auroraColors.holographic.gradient1,
@@ -503,6 +524,14 @@ const getAuroraComponents = (theme: any) => ({
           background: auroraColors.holographic.gradient2,
           color: '#ffffff !important',
           boxShadow: auroraShadows.glowLg,
+        },
+        '&.Mui-disabled': {
+          background: theme.palette.mode === 'light' 
+            ? 'rgba(0, 0, 0, 0.12)'
+            : 'rgba(255, 255, 255, 0.12)',
+          color: theme.palette.mode === 'light'
+            ? 'rgba(0, 0, 0, 0.26) !important'
+            : 'rgba(255, 255, 255, 0.3) !important',
         },
       },
       outlined: {
@@ -517,6 +546,16 @@ const getAuroraComponents = (theme: any) => ({
           boxShadow: auroraShadows.glow,
           color: theme.palette.mode === 'light' ? theme.palette.primary.dark : theme.palette.primary.light,
         },
+        '&.Mui-disabled': {
+          borderColor: theme.palette.mode === 'light' 
+            ? 'rgba(0, 0, 0, 0.12)'
+            : 'rgba(255, 255, 255, 0.12)',
+          background: 'transparent',
+          color: theme.palette.mode === 'light'
+            ? 'rgba(0, 0, 0, 0.26)'
+            : 'rgba(255, 255, 255, 0.3)',
+          backdropFilter: 'none',
+        },
       },
       text: {
         color: theme.palette.mode === 'light' ? theme.palette.primary.dark : theme.palette.primary.light,
@@ -524,6 +563,13 @@ const getAuroraComponents = (theme: any) => ({
           background: `${theme.palette.primary.main}10`,
           backdropFilter: 'blur(10px)',
           color: theme.palette.mode === 'light' ? theme.palette.primary.dark : theme.palette.primary.light,
+        },
+        '&.Mui-disabled': {
+          background: 'transparent',
+          color: theme.palette.mode === 'light'
+            ? 'rgba(0, 0, 0, 0.26)'
+            : 'rgba(255, 255, 255, 0.3)',
+          backdropFilter: 'none',
         },
       },
       sizeSmall: {
