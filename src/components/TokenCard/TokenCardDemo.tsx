@@ -72,13 +72,13 @@ export const TokenCardDemo: React.FC = () => {
   const [tokenData, setTokenData] = useState<TokenData | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
-  const [cardOrder, setCardOrder] = useState(["yolk", "nest", "shell"]);
+  const [cardOrder, setCardOrder] = useState(["yolk", "nest", "eggs"]);
   const [cardTabs, setCardTabs] = useState<
     Record<string, "chart" | "trade" | "lend" | "leverage">
   >({
     yolk: "chart",
     nest: "chart",
-    shell: "chart",
+    eggs: "chart",
   });
 
   const loadData = async () => {
@@ -169,12 +169,12 @@ export const TokenCardDemo: React.FC = () => {
             close: item.close * 1.2,
           })),
         };
-      case "shell":
+      case "eggs":
         return {
           ...tokenData,
-          name: "Shell",
+          name: "Eggs",
           symbol: "sonic",
-          tokenName: "SHELL",
+          tokenName: "EGGS",
           backingToken: "S",
           backingTitle: "Sonic",
           price:
