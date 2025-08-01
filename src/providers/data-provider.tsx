@@ -234,7 +234,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     args: [userAddress],
     enabled: isConnected,
   });
-  console.log(eggsUserLoan);
+
 
   const { data: eggsUserBalance, refetch: refetchEggsUserBalance } =
     useReadContract({
@@ -323,6 +323,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       backingBalance: eggsUserBalance, // NEST uses EGGS as backing
     },
   };
+
+    console.log(userData);
 
   // Legacy compatibility - map to the first available data (eggs)
   const userLoan = eggsUserLoan;
