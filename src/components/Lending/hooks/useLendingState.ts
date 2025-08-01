@@ -39,7 +39,7 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
 
   const { sonic: maxEggs } = useConverter(balance);
 
-  const max = parseEther("1500000"); /*useMemo(() => {
+  const max = useMemo(() => {
     const _collateralInSonic = collateralInSonic
       ? collateralInSonic
       : BigInt(0);
@@ -48,7 +48,7 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
       (_collateralInSonic * BigInt(99)) / BigInt(100) - (borrowed || BigInt(0));
     return _maxEggs + extraEggs;
   }, [maxEggs, duration, collateralInSonic, borrowed]);
-*/
+
   // console.log(max);
 
   useEffect(() => {
