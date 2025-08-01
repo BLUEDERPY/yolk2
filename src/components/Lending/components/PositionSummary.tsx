@@ -4,12 +4,16 @@ import { formatEther } from "viem";
 import { formatCurrency } from "../../../utils/formatters";
 import { useEggsData } from "../../../providers/data-provider";
 
-export const PositionSummary = () => {
-  const { userLoan: loanData } = useEggsData();
+interface PositionSummaryProps {
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+}
 
-  const collateral = loanData ? Number(formatEther(loanData[0])) : 0;
-  const borrowed = loanData ? Number(formatEther(loanData[1])) : 0;
-  const expiry = loanData ? new Date(Number(loanData[2]) * 1000) : new Date();
+export const PositionSummary: React.FC<PositionSummaryProps> = ({ tokenType = 'eggs' }) => {
+  const { userData } = useEggsData();
+  const loanData = userData[tokenType].loan;
+  const collateral = loanData ? Number(formatEther(loanData.collateral)) : 0;
+  const borrowed = loanData ? Number(formatEther(loanData.borrowed)) : 0;
+  const expiry = loanData ? new Date(Number(loanData.endDate) * 1000) : new Date();
 
   return (
     <Box sx={{ mb: 3 }}>

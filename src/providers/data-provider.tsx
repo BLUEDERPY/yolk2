@@ -260,7 +260,11 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   // Create userData structure
   const userData = {
     eggs: {
-      loan: userLoan as { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined,
+      loan: userLoan ? {
+        collateral: userLoan[0] as bigint,
+        borrowed: userLoan[1] as bigint,
+        endDate: userLoan[2] as bigint
+      } : undefined,
       balance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
       backingBalance: ethBalance,
     },

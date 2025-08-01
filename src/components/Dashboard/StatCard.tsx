@@ -33,6 +33,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   const collateralInSonic = Number(
     formatEther(_collateralInSonic || BigInt(0))
   );
+  
   return (
     <Card
       sx={{

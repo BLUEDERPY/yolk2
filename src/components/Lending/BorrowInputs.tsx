@@ -20,12 +20,13 @@ interface BorrowInputsProps {
   setDuration: (value: number) => void;
   onMaxClick: () => void;
   balance: string;
-  minDuration: number;
+  minDuration?: number;
   tokenConfig?: {
     tokenName: string;
     backingToken: string;
     backingTitle: string;
   };
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const BorrowInputs: React.FC<BorrowInputsProps> = ({
@@ -34,11 +35,13 @@ export const BorrowInputs: React.FC<BorrowInputsProps> = ({
   duration,
   setDuration,
   balance,
-  minDuration,
+  minDuration = 0,
   tokenConfig = { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" },
+  tokenType = 'eggs',
 }) => {
-  const { userSonicBalance: sonic, userLoan } = useEggsData();
-  const hasLoan = userLoan && new Date(Number(userLoan[2]) * 1000) < new Date();
+  const { userData } = useEggsData();
+  const loan = userData[tokenType].loan;
+  const hasLoan = loan && new Date(Number(loan.endDate) * 1000) < new Date();
 
   const [borrow, setBorrow] = useState("0");
 

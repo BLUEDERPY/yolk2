@@ -2,7 +2,9 @@ import React from "react";
 import { Card, Stack, Typography } from "@mui/material";
 import { SwapForm } from "./SwapForm";
 
-export const SwapWidget: React.FC = () => {
+interface SwapWidgetProps {
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+}
   return (
     <Card
       sx={{
@@ -14,7 +16,9 @@ export const SwapWidget: React.FC = () => {
         position: "relative",
       }}
     >
-      <SwapForm />
+      <SwapForm tokenType={tokenType} />
     </Card>
   );
 };
+
+export const SwapWidget: React.FC<SwapWidgetProps> = ({ tokenType = 'eggs' }) => {
