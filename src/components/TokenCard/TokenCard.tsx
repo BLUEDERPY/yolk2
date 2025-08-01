@@ -654,7 +654,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     <ArrowUpDown size={16} />
                     Trade
                   </Link>
-                  {loan && loan[1] > 0 ? (
+                  {loan && loan.borrowed > 0 ? (
                     <Link
                       component="button"
                       onClick={() => {
@@ -813,6 +813,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
                   <Box sx={{ flex: 1, display: { xs: "none", md: "block" }, pt: 3 }}>
                     <TokenChart
+                       tokenType={tokenType}
                       data={tokenData?.chartData}
                       timeframe={selectedTimeframe}
                       showVolume={true}
@@ -893,7 +894,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
               >
                 Trade
               </Button>
-              {loan && loan[1] > 0 ? (
+              {loan && loan.borrowed > 0 ? (
                 <Button
                   variant="outlined"
                   startIcon={<TrendingUp size={16} />}
