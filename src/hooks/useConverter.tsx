@@ -30,7 +30,7 @@ export default function useConverter(eggAmount: bigint) {
       : undefined;
 
   if (price) {
-    console.log("HEYYYY", lastJsonMessage.data);
+
     localStorage.setItem("eggsLastCovertPrice", price);
   }
   const _lastPrice = localStorage.getItem("eggsLastCovertPrice") || ".00114025";
