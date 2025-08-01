@@ -204,8 +204,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const userSonicBalance = currentTokenData.backingBalance;
   const loan = currentTokenData.loan;
 
-  // Check if user has an active loan for this specific token
-  const hasActiveLoan = loan && loan.borrowed > 0 && loan.endDate > Math.floor(Date.now() / 1000);
   // Get lending state for the lending tab
   const {
     borrowAmount,
@@ -651,7 +649,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     <ArrowUpDown size={16} />
                     Trade
                   </Link>
-                  {hasActiveLoan ? (
+                  {loan && loan[1] > 0 ? (
                     <Link
                       component="button"
                       onClick={() => {
@@ -889,7 +887,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
               >
                 Trade
               </Button>
-              {hasActiveLoan ? (
+              {loan && loan[1] > 0 ? (
                 <Button
                   variant="outlined"
                   startIcon={<TrendingUp size={16} />}
