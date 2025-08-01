@@ -127,7 +127,7 @@ console.log(
       }}
     >
       {loan &&
-      loan.borrowed &&
+      loan.borrowed
  ? (
         <Box
           sx={{
