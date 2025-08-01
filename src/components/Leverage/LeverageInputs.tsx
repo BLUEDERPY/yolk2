@@ -56,7 +56,7 @@ export const LeverageInputs = ({
   
   const sonic = userData[tokenType].backingBalance;
   const eggsBalance = userData[tokenType].balance;
-  console.log(tokenType);
+
   return (
     <Stack
       spacing={3}
