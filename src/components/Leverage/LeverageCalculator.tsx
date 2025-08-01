@@ -116,7 +116,7 @@ export const LeverageCalculator = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' 
     ...calculateROI(scenario.increase),
   }));
 console.log(
-      new Date(Number(loan.endDate) * 1000) <= new Date() )
+      new Date(Number(loan.endDate) * 1000) )
   return (
     <Box
       sx={{
