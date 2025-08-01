@@ -1,0 +1,10 @@
+{
+  "routes": [
+    { "src": "/", "dest": "/" },
+    { "src": "/trade", "dest": "/" },
+    { "src": "/leverage", "dest": "/" },
+    { "src": "/lending", "dest": "/" },
+    { "src": "/dashboard", "dest": "/" },
+    { "src": "/staking", "dest": "/" }
+  ]
+}
