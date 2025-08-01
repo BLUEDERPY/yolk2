@@ -27,8 +27,8 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
   const loan = userData[tokenType].loan;
   const balance = userData[tokenType].balance;
   
-  const borrowed = loan ? loan?.collateral : undefined;
-  const collateral = loan ? loan?.borrowed : undefined;
+  const borrowed = loan ? Number(loan.collateral) : undefined;
+  const collateral = loan ? Number(loan.borrowed): undefined;
   const minDuration = useMemo(() => {
     if (borrowed) return dateDiff(new Date(Number(loan[2]) * 1000), new Date());
   }, [borrowed, loan]);
