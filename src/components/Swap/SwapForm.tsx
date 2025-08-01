@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Stack, Button, Typography, Link, Divider } from "@mui/material";
+import { Stack, Button, Typography, Link } from "@mui/material";
 import { SwapInput } from "./SwapInput";
 import { SwapButton } from "./SwapButton";
 import { ArrowUpDown } from "lucide-react";

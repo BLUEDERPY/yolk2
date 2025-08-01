@@ -73,6 +73,7 @@ export const ChartComponent = (props) => {
             const __data = [...rawData, ...data];
 
             const _data = reformatData(__data, candelSize);
+            // console.log(__data);
             series.setData(_data);
             if (_rawData.isFirst && fitCheck) {
               chart.timeScale().fitContent();
@@ -104,6 +105,7 @@ export const ChartComponent = (props) => {
             series?.update(__data[__data.length - 1]);
             setData((s) => [...s, rawData[0]]);
           } catch {
+            // ////// console.log("Chart Lag");
           }
         }
       }

@@ -121,6 +121,7 @@ export const TokenCardDemo: React.FC = () => {
     cardId: string,
     tab: "chart" | "trade" | "lend" | "leverage"
   ) => {
+    console.log("Tab change for card:", cardId, "to tab:", tab);
     setCardTabs((prev) => ({
       ...prev,
       [cardId]: tab,
@@ -270,6 +271,9 @@ export const TokenCardDemo: React.FC = () => {
                       onExpandChange={(expanded, tab) =>
                         handleExpandChange(cardId, expanded, tab)
                       }
+                      onTrade={() => console.log(`Trade ${cardId}`)}
+                      onLend={() => console.log(`Lend ${cardId}`)}
+                      onLeverage={() => console.log(`Leverage ${cardId}`)}
                     />
                   ))}
               </Box>
@@ -301,6 +305,9 @@ export const TokenCardDemo: React.FC = () => {
                   onExpandChange={(expanded, tab) =>
                     handleExpandChange(cardId, expanded, tab)
                   }
+                  onTrade={() => console.log(`Trade ${cardId}`)}
+                  onLend={() => console.log(`Lend ${cardId}`)}
+                  onLeverage={() => console.log(`Leverage ${cardId}`)}
                 />
               ))}
             </Box>

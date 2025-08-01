@@ -48,6 +48,66 @@ import { BorrowActions } from "../Lending/BorrowActions";
 import { useLendingState } from "../Lending/hooks/useLendingState";
 import { BalancesWidget } from "../Lending/BalancesWidget";
 
+// Simple line chart component for compact view
+const SimpleChart: React.FC<{
+  data: ChartDataPoint[];
+  priceChangeColor: string;
+}> = ({ data, priceChangeColor }) => {
+  const theme = useTheme();
+
+  if (!data || data.length === 0) return null;
+
+  // Create simple line path from data
+  const width = 200;
+  const height = 60;
+  const padding = 4;
+
+  const prices = data.map((d) => d.close);
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const priceRange = maxPrice - minPrice || 1;
+
+  const points = data
+    .map((d, i) => {
+      const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
+      const y =
+        height -
+        padding -
+        ((d.close - minPrice) / priceRange) * (height - 2 * padding);
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <Box sx={{ width: "100%", height: 60, mt: 1 }}>
+      <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
+        <defs>
+          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={priceChangeColor} stopOpacity={0.3} />
+            <stop
+              offset="100%"
+              stopColor={priceChangeColor}
+              stopOpacity={0.05}
+            />
+          </linearGradient>
+        </defs>
+        <polyline
+          fill="none"
+          stroke={priceChangeColor}
+          strokeWidth="2"
+          points={points}
+        />
+        <polygon
+          fill="url(#chartGradient)"
+          points={`${padding},${height - padding} ${points} ${
+            width - padding
+          },${height - padding}`}
+        />
+      </svg>
+    </Box>
+  );
+};
+
 export interface ChartDataPoint {
   timestamp: number;
   open: number;
@@ -93,9 +153,13 @@ export interface TokenCardProps {
 export const TokenCard: React.FC<TokenCardProps> = ({
   tokenData,
   isLoading = false,
+  onRefresh,
   showVolume = true,
   defaultTimeframe = "7d",
   compact = false,
+  onTrade,
+  onLend,
+  onLeverage,
   isExpanded = false,
   onExpandChange,
   activeTab = "overview",
@@ -114,6 +178,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     userLoan: loan,
     isPending: isTrading,
     isConfirming: isConfirmingTrade,
+    isSuccess: isTradeSuccess,
   } = useEggsData();
 
   // Get lending state for the lending tab
@@ -152,6 +217,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       ? Number(formatEther(conversionRateToSonic)) * 0.99
       : 0;
 
+  const [selectedTimeframe, setSelectedTimeframe] = useState<
+    "24h" | "7d" | "30d" | "1y"
+  >(defaultTimeframe);
+
   const priceChangeColor =
     tokenData && tokenData.priceChange24h >= 0
       ? theme.palette.success.main
@@ -177,16 +246,19 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   };
 
   const handleActionClick = (tab: "trade" | "lend" | "leverage" | "chart") => {
+    console.log("Action clicked, setting tab to:", tab);
     if (onTabChange) {
       onTabChange(tab);
     }
     // Then expand
     if (onExpandChange) {
+      console.log("Expanding card");
       onExpandChange(true, tab);
     }
   };
 
   const handleTabClick = (tab: "overview" | "trade" | "lend" | "leverage") => {
+    console.log("Tab clicked, setting tab to:", tab);
     if (onTabChange) {
       onTabChange(tab);
     }
@@ -494,20 +566,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
             {/* Simple chart for compact view */}
             {!isExpanded && (
-              <Box sx={{ 
-                width: "100%", 
-                height: 60, 
-                mt: 1,
-                background: `linear-gradient(90deg, ${priceChangeColor}20 0%, ${priceChangeColor}10 50%, ${priceChangeColor}20 100%)`,
-                borderRadius: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Typography variant="caption" color="text.secondary">
-                  Chart Preview
-                </Typography>
-              </Box>
+              <SimpleChart
+                data={tokenData.chartData}
+                priceChangeColor={priceChangeColor}
+              />
             )}
           </Box>
 
@@ -535,6 +597,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Link
                     component="button"
                     onClick={() => {
+                      console.log("Full Trade button clicked");
                       handleActionClick("trade");
                     }}
                     sx={{
@@ -567,6 +630,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     <Link
                       component="button"
                       onClick={() => {
+                        console.log("Full Lend button clicked");
                         handleActionClick("leverage");
                       }}
                       sx={{
@@ -598,6 +662,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                       <Link
                         component="button"
                         onClick={() => {
+                          console.log("Full Lend button clicked");
                           handleActionClick("lend");
                         }}
                         sx={{
@@ -629,6 +694,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                       <Link
                         component="button"
                         onClick={() => {
+                          console.log("Full Leverage button clicked");
                           handleActionClick("leverage");
                         }}
                         sx={{
@@ -662,6 +728,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Link
                     component="button"
                     onClick={() => {
+                      console.log("Full Chart button clicked");
                       handleActionClick("chart");
                     }}
                     sx={{
@@ -699,7 +766,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Box sx={{ height: {xs: 'auto', md: 575}, mb: 2 }}>
                     <TokenChart
                       data={tokenData?.chartData}
-                      timeframe="7d"
+                      timeframe={selectedTimeframe}
                       showVolume={true}
                       priceChangeColor={priceChangeColor}
                       compact={false}
@@ -718,7 +785,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   <Box sx={{ flex: 1, display: { xs: "none", md: "block" }, pt: 3 }}>
                     <TokenChart
                       data={tokenData?.chartData}
-                      timeframe="7d"
+                      timeframe={selectedTimeframe}
                       showVolume={true}
                       priceChangeColor={priceChangeColor}
                       compact={false}
@@ -789,6 +856,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                 variant="outlined"
                 startIcon={<ArrowUpDown size={16} />}
                 onClick={() => {
+                  console.log("Compact Trade button clicked");
                   handleActionClick("trade");
                 }}
                 sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}
@@ -801,6 +869,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   variant="outlined"
                   startIcon={<TrendingUp size={16} />}
                   onClick={() => {
+                    console.log("Compact Leverage button clicked");
                     handleActionClick("leverage");
                   }}
                   sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}
@@ -814,6 +883,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     variant="outlined"
                     startIcon={<Coins size={16} />}
                     onClick={() => {
+                      console.log("Compact Lend button clicked");
                       handleActionClick("lend");
                     }}
                     sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}
@@ -825,6 +895,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     variant="outlined"
                     startIcon={<TrendingUp size={16} />}
                     onClick={() => {
+                      console.log("Compact Leverage button clicked");
                       handleActionClick("leverage");
                     }}
                     sx={{ flex: 1, minWidth: 0, fontSize: "0.75rem" }}
