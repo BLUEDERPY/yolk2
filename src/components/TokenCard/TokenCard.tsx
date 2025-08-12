@@ -471,7 +471,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           sx={{
             display: "flex",
             flexDirection: "column",
-            height: "100%",
             gap: 1,
           }}
         >
