@@ -224,7 +224,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     max,
   } = useLendingState(tokenType);
   const { sonic: conversionRateToSonic, eggs: conversionRateToEggs } =
-    useConverter(parseEther(tradeAmount || "0"));
+    useConverter(parseEther(tradeAmount || "0"), tokenType);
 
   const eggsBalance = userEggsBalance
     ? Number(formatEther(userEggsBalance))
@@ -574,7 +574,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
               sx={{ display: "flex", alignItems: "baseline", gap: 1.5, mb: 1 }}
             >
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                {formatPrice(tokenData.price)}
+                {formatPrice(actualPrice)}
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 {tokenData.priceChange24h >= 0 ? (

@@ -96,7 +96,7 @@ export const useLendingState = (
   };
 
   const { eggs: conversionRate } = useConverter(
-    borrowAmount > max ? max : borrowAmount
+    borrowAmount && max ? (borrowAmount > max ? max : borrowAmount) : BigInt(0), tokenType
   );
 
   const fee = getInterestFeeInEggs(

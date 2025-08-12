@@ -15,9 +15,10 @@ export const LoanMetrics: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = (
   
   // Use specified token loan data
   const loanData = userData[tokenType].loan;
+  const contractPrice = userData[tokenType].price;
 
   const { sonic: conversionRate } = useConverter(
-    loanData ? loanData.collateral : parseEther("0")
+    loanData ? loanData.collateral : parseEther("0"), tokenType
   );
 
   // Calculate values
