@@ -558,13 +558,29 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const buy = (sonicAmount: string, token: TokenType = 'eggs') => {
     const contract = getTokenContract(token);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "buy",
-      args: [userAddress],
-      value: parseEther(sonicAmount),
-    });
+    
+    if (token === 'eggs') {
+      // EGGS contract: buy(address receiver) payable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "buy",
+        args: [userAddress],
+        value: parseEther(sonicAmount),
+      });
+    } else {
+      // YOLK/NEST contracts: buy(address receiver, uint256 amount) nonpayable
+      // First need to approve the backing token
+      const backingTokenBalance = userData[token].backingBalance;
+      const amountToBuy = parseEther(sonicAmount);
+      
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "buy",
+        args: [userAddress, amountToBuy],
+      });
+    }
   };
   
   const sell = (eggAmount: string, token: TokenType = 'eggs') => {
@@ -590,22 +606,48 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   
   const borrow = (sonicAmount: bigint, days: number, token: TokenType = 'eggs') => {
     const contract = getTokenContract(token);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "borrow",
-      args: [sonicAmount, days],
-    });
+    
+    if (token === 'eggs') {
+      // EGGS contract: borrow(uint256 sonic, uint256 numberOfDays) nonpayable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "borrow",
+        args: [sonicAmount, days],
+      });
+    } else {
+      // YOLK/NEST contracts: borrow(uint256 sonic, uint256 numberOfDays) nonpayable
+      // Same signature, but different backing token handling
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "borrow",
+        args: [sonicAmount, days],
+      });
+    }
   };
   
   const borrowMore = (sonicAmount: bigint, token: TokenType = 'eggs') => {
     const contract = getTokenContract(token);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "borrowMore",
-      args: [sonicAmount],
-    });
+    
+    if (token === 'eggs') {
+      // EGGS contract: borrowMore(uint256 sonic) nonpayable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "borrowMore",
+        args: [sonicAmount],
+      });
+    } else {
+      // YOLK/NEST contracts: borrowMore(uint256 sonic) nonpayable
+      // Same signature for all tokens
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "borrowMore",
+        args: [sonicAmount],
+      });
+    }
   };
   const publicClient = usePublicClient();
 
@@ -619,39 +661,73 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const leverage = (sonic, days, _fee, token: TokenType = 'eggs') => {
     const contract = getTokenContract(token);
-    //// // console.log(formatEther(sonic || "0"));
-    //// // console.log(formatEther(_fee || "0"));
-    console.log(days);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "leverage",
-      args: [sonic, days],
-      value: _fee,
-    });
+    
+    if (token === 'eggs') {
+      // EGGS contract: leverage(uint256 sonic, uint256 numberOfDays) payable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "leverage",
+        args: [sonic, days],
+        value: _fee,
+      });
+    } else {
+      // YOLK/NEST contracts: leverage(uint256 sonic, uint256 numberOfDays) nonpayable
+      // No value parameter needed for YOLK/NEST
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "leverage",
+        args: [sonic, days],
+      });
+    }
   };
   
   const closePosition = (token: TokenType = 'eggs') => {
     const contract = getTokenContract(token);
-    const loan = userData[token].loan;
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "closePosition",
-      args: [],
-      value: loan ? loan.borrowed : 0,
-    });
+    
+    if (token === 'eggs') {
+      // EGGS contract: closePosition() payable
+      const loan = userData[token].loan;
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "closePosition",
+        args: [],
+        value: loan ? loan.borrowed : 0,
+      });
+    } else {
+      // YOLK/NEST contracts: closePosition() nonpayable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "closePosition",
+        args: [],
+      });
+    }
   };
   
   const repay = (sonic: BigInt, token: TokenType = 'eggs') => {
     const contract = getTokenContract(token);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "repay",
-      args: [],
-      value: sonic,
-    });
+    
+    if (token === 'eggs') {
+      // EGGS contract: repay() payable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "repay",
+        args: [],
+        value: sonic,
+      });
+    } else {
+      // YOLK/NEST contracts: repay(uint256 amount) nonpayable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "repay",
+        args: [sonic],
+      });
+    }
   };
 
   const flashClosePosition = (token: TokenType = 'eggs') => {
@@ -677,13 +753,25 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   
   const extendLoan = (days: number, fee: string, token: TokenType = 'eggs') => {
     const contract = getTokenContract(token);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "extendLoan",
-      args: [days],
-      value: parseEther(fee),
-    });
+    
+    if (token === 'eggs') {
+      // EGGS contract: extendLoan(uint256 numberOfDays) payable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "extendLoan",
+        args: [days],
+        value: parseEther(fee),
+      });
+    } else {
+      // YOLK/NEST contracts: extendLoan(uint256 numberOfDays) nonpayable
+      writeContract({
+        abi: contract.abi,
+        address: contract.address as Address,
+        functionName: "extendLoan",
+        args: [days],
+      });
+    }
   };
   const isMintedOut =
     totalMinted && maxSupply
