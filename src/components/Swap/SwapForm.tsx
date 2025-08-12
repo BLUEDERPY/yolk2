@@ -33,16 +33,40 @@ export const SwapForm: React.FC<SwapFormProps> = ({
     isSuccess,
   } = useEggsData();
 
-  // Use specified token data
-  const eggsBalance = userData[tokenType].balance;
-  const balance = userData[tokenType].backingBalance;
+  // Use specified token data from userData
+  const tokenBalance = userData[tokenType].balance;
+  const backingBalance = userData[tokenType].backingBalance;
 
   const { sonic: conversionRateToSonic, eggs: conversionRateToEggs } = useConverter(
     parseEther(fromAmount.toString() || "0"), tokenType
   );
 
-  const sonicBalance = balance ? Number(balance.formatted).toFixed(6) : "0";
-  const eggsBalanceFormatted = Number(formatEther(eggsBalance || "0"));
+  // Format balances based on token type
+  const getFormattedBackingBalance = () => {
+    if (!backingBalance) return "0";
+    
+    switch (tokenType) {
+      case 'eggs':
+        // EGGS uses SONIC (native token)
+        return Number(backingBalance.formatted || "0").toFixed(6);
+      case 'yolk':
+        // YOLK uses USDC
+        return Number(backingBalance.formatted || "0").toFixed(6);
+      case 'nest':
+        // NEST uses EGGS as backing
+        return Number(backingBalance.formatted || "0").toFixed(6);
+      default:
+        return "0";
+    }
+  };
+
+  const getFormattedTokenBalance = () => {
+    if (!tokenBalance) return 0;
+    return Number(formatEther(tokenBalance));
+  };
+
+  const formattedBackingBalance = getFormattedBackingBalance();
+  const formattedTokenBalance = getFormattedTokenBalance();
 
   const convertedAmount =
     tradeDirection === "buy"
@@ -133,14 +157,14 @@ export const SwapForm: React.FC<SwapFormProps> = ({
         onChange={handleFromAmountChange}
         balance={
           tradeDirection === "buy"
-            ? sonicBalance
-            : eggsBalanceFormatted.toString()
+            ? formattedBackingBalance
+            : formattedTokenBalance.toString()
         }
         onMax={() =>
           handleFromAmountChange(
             tradeDirection === "buy"
-              ? sonicBalance
-              : eggsBalanceFormatted.toString()
+              ? formattedBackingBalance
+              : formattedTokenBalance.toString()
           )
         }
       />
@@ -173,8 +197,8 @@ export const SwapForm: React.FC<SwapFormProps> = ({
         onChange={() => {}}
         balance={
           tradeDirection === "buy"
-            ? eggsBalanceFormatted.toString()
-            : sonicBalance
+            ? formattedTokenBalance.toString()
+            : formattedBackingBalance
         }
         disabled
       />
@@ -186,8 +210,8 @@ export const SwapForm: React.FC<SwapFormProps> = ({
           Number(fromAmount) <= 0 ||
           Number(fromAmount) >
             (tradeDirection === "buy"
-              ? Number(sonicBalance)
-              : Number(eggsBalanceFormatted))
+              ? Number(formattedBackingBalance)
+              : Number(formattedTokenBalance))
         }
       />
     </Stack>
