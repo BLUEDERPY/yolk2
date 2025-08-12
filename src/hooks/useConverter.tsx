@@ -25,15 +25,15 @@ export default function useConverter(eggAmount: bigint) {
     lastJsonMessage &&
     lastJsonMessage !== "ping" &&
     lastJsonMessage?.data &&
-    lastJsonMessage.data !== "ping" &&
-    Array.isArray(lastJsonMessage.data) &&
-    lastJsonMessage.data.length == 1
-      ? lastJsonMessage.data[lastJsonMessage.data.length - 1]?.high
+    lastJsonMessage?.data !== "ping" &&
+    Array.isArray(lastJsonMessage?.data) &&
+    lastJsonMessage?.data.length === 1
+      ? lastJsonMessage?.data[lastJsonMessage?.data.length - 1]?.high
       : undefined;
 
   useEffect(() => {
     if (price) {
-      console.log("HEYYYY", lastJsonMessage?.data);
+      console.log("Price update:", lastJsonMessage?.data);
       localStorage.setItem("eggsLastCovertPrice", price);
     }
   }, [price, lastJsonMessage?.data]);

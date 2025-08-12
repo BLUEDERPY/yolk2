@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import {
   useReadContract,
@@ -17,6 +18,16 @@ import { EggsContract, Gauge, TokenContracts, TokenType } from "./contracts";
 import { Address, formatEther, parseEther } from "viem";
 import useWriteContractAndWaitForConfirm from "../hooks/useWriteContractAndWaitForConfirm";
 import { useEstimateGas } from "../hooks/useEstimateGas";
+
+interface ChartDataPoint {
+  timestamp: number;
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
 
 interface EggsContextType {
   // Protocol data
@@ -34,6 +45,12 @@ interface EggsContextType {
   loanByDay2: bigint | undefined;
   loanByDay1: bigint | undefined;
   nextReward: bigint | undefined;
+
+  // Chart data
+  chartData: ChartDataPoint[];
+  isChartDataLoading: boolean;
+  chartDataError: string | null;
+  refreshChartData: () => void;
 
   // User data for multiple tokens
   userData: {
@@ -89,6 +106,10 @@ const EggsContext = createContext<EggsContextType>({
   totalCollateral: undefined,
   backing: undefined,
   lastPrice: undefined,
+  chartData: [],
+  isChartDataLoading: false,
+  chartDataError: null,
+  refreshChartData: () => {},
   userData: {
     eggs: {
       loan: undefined,
@@ -141,6 +162,72 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { address: userAddress, isConnected } = useAccount();
+
+  // Chart data state
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [isChartDataLoading, setIsChartDataLoading] = useState(false);
+  const [chartDataError, setChartDataError] = useState<string | null>(null);
+
+  // Load chart data from localStorage on mount
+  useEffect(() => {
+    const loadCachedChartData = () => {
+      try {
+        const cachedData = localStorage.getItem("egg00ChartData");
+        if (cachedData) {
+          const parsedData = JSON.parse(cachedData);
+          if (Array.isArray(parsedData) && parsedData.length > 0) {
+            setChartData(parsedData);
+          }
+        }
+      } catch (error) {
+        console.warn("Failed to load cached chart data:", error);
+        localStorage.removeItem("egg00ChartData");
+      }
+    };
+
+    loadCachedChartData();
+  }, []);
+
+  // Function to refresh chart data
+  const refreshChartData = useCallback(async () => {
+    setIsChartDataLoading(true);
+    setChartDataError(null);
+
+    try {
+      // Try to fetch fresh data from API or WebSocket
+      const cachedData = localStorage.getItem("egg00ChartData");
+      if (cachedData) {
+        const parsedData = JSON.parse(cachedData);
+        if (Array.isArray(parsedData)) {
+          setChartData(parsedData);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh chart data:", error);
+      setChartDataError("Failed to load chart data");
+    } finally {
+      setIsChartDataLoading(false);
+    }
+  }, []);
+
+  // Update chart data when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "egg00ChartData" && e.newValue) {
+        try {
+          const parsedData = JSON.parse(e.newValue);
+          if (Array.isArray(parsedData)) {
+            setChartData(parsedData);
+          }
+        } catch (error) {
+          console.warn("Failed to parse updated chart data:", error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Helper function to get contract config for a token
   const getTokenContract = (token: TokenType = 'eggs') => TokenContracts[token];
@@ -532,6 +619,10 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
         loanByDay3,
         loanByDay2,
         loanByDay1,
+        chartData,
+        isChartDataLoading,
+        chartDataError,
+        refreshChartData,
         buy,
         sell,
         borrow,

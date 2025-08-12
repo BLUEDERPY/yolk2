@@ -6,6 +6,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useVisibilityChange } from "@uidotdev/usehooks";
 
 import { useTheme } from "@mui/material/styles";
+import { useEggsData } from "../../providers/data-provider";
 const WS_URL = "wss://eggs-64815067aa3c.herokuapp.com/"; //"ws://localhost:8000";
 import { reformatData } from "../Chart/FormatData";
 
@@ -15,6 +16,7 @@ interface TokenChartProps {
   showVolume?: boolean;
   priceChangeColor?: string;
   compact?: boolean;
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const TokenChart: React.FC<TokenChartProps> = ({
@@ -23,10 +25,12 @@ export const TokenChart: React.FC<TokenChartProps> = ({
   showVolume = true,
   priceChangeColor,
   compact = false,
+  tokenType = 'eggs',
 }) => {
   const xs = useMediaQuery("(max-width:600px)");
   const theme = useTheme();
   const documentVisible = useVisibilityChange();
+  const { chartData: providerChartData, isChartDataLoading } = useEggsData();
 
   const [ready, setReady] = useState(0);
 
@@ -47,15 +51,24 @@ export const TokenChart: React.FC<TokenChartProps> = ({
 
   const [series, setSeries] = useState(null);
   const [chart, setChart] = useState(null);
-  const [updatedata, setData] = useState([]);
+  const [updatedata, setData] = useState<any[]>([]);
   const chartContainerRef = useRef();
   const [candelSize, setCandleSize] = useState(60);
+
+  // Initialize chart data from provider
+  useEffect(() => {
+    if (providerChartData && providerChartData.length > 0 && updatedata.length === 0) {
+      setData(providerChartData);
+    }
+  }, [providerChartData, updatedata.length]);
 
   const setChartInterval = useCallback(
     (interval) => {
       const _data = reformatData(updatedata, interval);
-      series.setData(_data);
-      chart.timeScale().fitContent();
+      if (series && chart) {
+        series.setData(_data);
+        chart.timeScale().fitContent();
+      }
       setCandleSize(interval);
     },
     [updatedata, chart, series]
@@ -65,7 +78,14 @@ export const TokenChart: React.FC<TokenChartProps> = ({
 
   useEffect(() => {
     if (series && chart && lastMessage && lastMessage.data !== "ping") {
-      const _rawData = JSON.parse(lastMessage.data);
+      let _rawData;
+      try {
+        _rawData = JSON.parse(lastMessage.data);
+      } catch (error) {
+        console.warn("Failed to parse WebSocket message:", error);
+        return;
+      }
+      
       const rawData = _rawData?.data || [];
 
       if (rawData.length > 1) {
@@ -73,9 +93,13 @@ export const TokenChart: React.FC<TokenChartProps> = ({
           setData((data) => {
             const __data = [...rawData, ...data.slice(0, 10000)]; // Limit data size
             const _data = reformatData(__data, candelSize);
-            series.setData(_data);
+            if (series) {
+              series.setData(_data);
+            }
             if (_rawData.isFirst && fitCheck) {
-              chart.timeScale().fitContent();
+              if (chart) {
+                chart.timeScale().fitContent();
+              }
               setFit(false);
             }
             try {
@@ -91,7 +115,13 @@ export const TokenChart: React.FC<TokenChartProps> = ({
 
   useEffect(() => {
     if (series && chart && lastMessage && lastMessage.data !== "ping") {
-      const rawData = JSON.parse(lastMessage.data).data;
+      let rawData;
+      try {
+        rawData = JSON.parse(lastMessage.data).data;
+      } catch (error) {
+        console.warn("Failed to parse WebSocket message:", error);
+        return;
+      }
 
       if (rawData.length === 1 && updatedata.length > 0) {
         if (
@@ -105,7 +135,7 @@ export const TokenChart: React.FC<TokenChartProps> = ({
             series?.update(__data[__data.length - 1]);
             setData((s) => [...s.slice(-10000), rawData[0]]); // Limit array growth
           } catch {
-            // Chart lag handling
+            console.warn("Chart update error:", error);
           }
         }
       }
@@ -119,6 +149,9 @@ export const TokenChart: React.FC<TokenChartProps> = ({
       }
     };
 
+    if (!chartContainerRef.current) {
+      return;
+    }
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
@@ -161,18 +194,26 @@ export const TokenChart: React.FC<TokenChartProps> = ({
     setSeries(series);
     setChart(chart);
 
-    const cachedata = localStorage.getItem("egg00ChartData");
-
-    if (cachedata) {
-      try {
-        const jsonCacheData = JSON.parse(cachedata);
-        series.setData(jsonCacheData);
-        chart.timeScale().fitContent();
-        setData(jsonCacheData);
-        console.log("usedCache");
-      } catch (e) {
-        console.warn("Failed to parse cached chart data:", e);
-        localStorage.removeItem("egg00ChartData");
+    // Use provider chart data or fallback to localStorage
+    if (providerChartData && providerChartData.length > 0) {
+      series.setData(providerChartData);
+      chart.timeScale().fitContent();
+      setData(providerChartData);
+    } else {
+      const cachedata = localStorage.getItem("egg00ChartData");
+      if (cachedata) {
+        try {
+          const jsonCacheData = JSON.parse(cachedata);
+          if (Array.isArray(jsonCacheData) && jsonCacheData.length > 0) {
+            series.setData(jsonCacheData);
+            chart.timeScale().fitContent();
+            setData(jsonCacheData);
+            console.log("Used cached chart data");
+          }
+        } catch (e) {
+          console.warn("Failed to parse cached chart data:", e);
+          localStorage.removeItem("egg00ChartData");
+        }
       }
     }
 
@@ -182,9 +223,6 @@ export const TokenChart: React.FC<TokenChartProps> = ({
       window.removeEventListener("resize", handleResize);
       if (chart) {
         chart.remove();
-      }
-    };
-  }, [theme, compact, xs]);
 
   const candleRanges = [
     { text: "1m", time: 1 * 60 },
