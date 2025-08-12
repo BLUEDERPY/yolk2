@@ -134,7 +134,7 @@ export const TokenChart: React.FC<TokenChartProps> = ({
             const __data = reformatData(_newData, candelSize);
             series?.update(__data[__data.length - 1]);
             setData((s) => [...s.slice(-10000), rawData[0]]); // Limit array growth
-          } catch {
+          } catch (error) {
             console.warn("Chart update error:", error);
           }
         }
@@ -225,7 +225,7 @@ export const TokenChart: React.FC<TokenChartProps> = ({
         chart.remove();
       }
     };
-  }, [chartContainerRef, theme, compact, providerChartData]);
+  }, [theme, compact, xs, providerChartData]);
 
   const candleRanges = [
     { text: "1m", time: 1 * 60 },
