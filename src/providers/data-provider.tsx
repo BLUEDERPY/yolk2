@@ -214,6 +214,27 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     nest?: bigint;
   }>({});
   
+  // WebSocket state
+  const [ready, setReady] = useState(0);
+  const [fitCheck, setFitCheck] = useState(true);
+  
+  // WebSocket URL logic - only connect when document is visible or ready
+  const wS_URL = (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
+  
+  // WebSocket connection with proper reconnection logic
+  const { lastMessage, readyState } = useWebSocket(wS_URL, {
+    share: true,
+    shouldReconnect: () => {
+      return documentVisible;
+    },
+    heartbeat: true,
+  });
+  
+  // Track ready state
+  useEffect(() => {
+    setReady(readyState);
+  }, [readyState]);
+  
   // Price event listeners for real-time updates
   useWatchContractEvent({
     address: EggsContract.address as Address,
