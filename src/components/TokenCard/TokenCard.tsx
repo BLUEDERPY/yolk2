@@ -30,6 +30,7 @@ import {
   ArrowUpDown,
   Coins,
   ArrowDownUp,
+  X,
 } from "lucide-react";
 import { TokenChart } from "./TokenChart";
 import { nFormatter } from "../../utils/formatters";
@@ -443,24 +444,32 @@ export const TokenCard: React.FC<TokenCardProps> = ({
               </Box>
             </Box>
 
-            <IconButton
-              onClick={() =>
-                onExpandChange && onExpandChange(!isExpanded, "chart")
-              }
-              size="large"
-              sx={{
-                border: "1px solid",
-                borderColor: "divider",
-                width: 32,
-                height: 32,
-              }}
-            >
-              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </IconButton>
-                     {/* Balances Widget in header for full view */}
-            {isExpanded && (
-              <BalancesWidget sonic={userSonicBalance} eggs={userEggsBalance} tokenConfig={tokenConfig} />
-            )}
+            <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2 }}>
+              {/* Balances Widget in header for full view */}
+              {isExpanded && (
+                <BalancesWidget sonic={userSonicBalance} eggs={userEggsBalance} tokenConfig={tokenConfig} />
+              )}
+              
+              <IconButton
+                onClick={() =>
+                  onExpandChange && onExpandChange(!isExpanded, "chart")
+                }
+                size="small"
+                sx={{
+                  border: "1px solid",
+                  borderColor: "divider",
+                  width: 32,
+                  height: 32,
+                  "&:hover": {
+                    borderColor: "primary.main",
+                    backgroundColor: "primary.main",
+                    color: "white",
+                  },
+                }}
+              >
+                {isExpanded ? <X size={16} /> : <ChevronDown size={16} />}
+              </IconButton>
+            </Box>
           </Box>
 
           {/* Price Section */}
