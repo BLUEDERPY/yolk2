@@ -18,6 +18,7 @@ interface BorrowActionsProps {
     backingToken: string;
     backingTitle: string;
   };
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const BorrowActions: React.FC<BorrowActionsProps> = ({

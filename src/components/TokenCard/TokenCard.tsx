@@ -218,7 +218,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     isTransactionOccuring,
     balance,
     max,
-  } = useLendingState();
+  } = useLendingState(tokenType);
   const { sonic: conversionRateToSonic, eggs: conversionRateToEggs } =
     useConverter(parseEther(tradeAmount || "0"));
 
@@ -314,7 +314,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   </Box>
                   
                   <SwapInput
-                     tokenType={tokenType}
+                    tokenType={tokenType}
                     label={tradeDirection === "buy" ? tokenConfig.backingTitle : tokenConfig.tokenName}
                     value={tradeAmount}
                     onChange={setTradeAmount}
@@ -349,7 +349,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     <ArrowUpDown size={20} />
                   </Button>
                   <SwapInput
-                     tokenType={tokenType}
+                    tokenType={tokenType}
                     label={tradeDirection === "buy" ? tokenConfig.tokenName : tokenConfig.backingTitle}
                     value={convertedAmount.toFixed(6)}
                     onChange={() => {}}
@@ -403,7 +403,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   </Box>
                   
                   <BorrowInputs
-                     tokenType={tokenType}
+                    tokenType={tokenType}
                     max={max}
                     setBorrowAmount={setBorrowAmount}
                     duration={duration}
@@ -413,15 +413,15 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   />
                   <Box sx={{ my: 2 }}>
                     <CollateralDisplay
-                       tokenType={tokenType}
+                      tokenType={tokenType}
                       collateralRequired={collateralRequired || 0}
                       borrowAmount={borrowAmount}
                       tokenConfig={tokenConfig}
                     />
-                    <FeesDisplay  tokenType={tokenType} fees={fees} duration={duration} />
+                    <FeesDisplay tokenType={tokenType} fees={fees} duration={duration} />
                   </Box>
                   <BorrowActions
-                     tokenType={tokenType}
+                    tokenType={tokenType}
                     isValid={isValid}
                     errorMessage={errorMessage}
                     onBorrow={handleBorrow}
@@ -793,7 +793,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                 activeTab === "chart" ? (
                   <Box sx={{ height: {xs: 'auto', md: 575}, mb: 2 }}>
                     <TokenChart
-                       tokenType={tokenType}
+                      tokenType={tokenType}
                       data={tokenData?.chartData}
                       timeframe={selectedTimeframe}
                       showVolume={true}
@@ -813,7 +813,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
                   <Box sx={{ flex: 1, display: { xs: "none", md: "block" }, pt: 3 }}>
                     <TokenChart
-                       tokenType={tokenType}
+                      tokenType={tokenType}
                       data={tokenData?.chartData}
                       timeframe={selectedTimeframe}
                       showVolume={true}

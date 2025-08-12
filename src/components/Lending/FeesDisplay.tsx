@@ -11,6 +11,7 @@ interface FeesDisplayProps {
     conversionRate: bigint;
   };
   duration: number;
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const FeesDisplay: React.FC<FeesDisplayProps> = ({ fees, duration }) => {

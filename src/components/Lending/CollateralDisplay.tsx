@@ -10,6 +10,7 @@ interface CollateralDisplayProps {
     backingToken: string;
     backingTitle: string;
   };
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const CollateralDisplay: React.FC<CollateralDisplayProps> = ({

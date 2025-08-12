@@ -8,6 +8,7 @@ interface SwapInputProps {
   balance: string;
   onMax?: () => void;
   disabled?: boolean;
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const SwapInput: React.FC<SwapInputProps> = ({
