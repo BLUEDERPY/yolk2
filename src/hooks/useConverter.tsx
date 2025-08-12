@@ -4,7 +4,7 @@ import { useEggsData } from "../providers/data-provider";
 import { TokenType } from "../providers/contracts";
 
 export default function useConverter(eggAmount: bigint, tokenType: TokenType = 'eggs') {
-  const { lastMessage } = useEggsData();
+  const { lastMessage, userData } = useEggsData();
 
   // Get price from the specific token's contract data
   const contractPrice = userData[tokenType].price;
