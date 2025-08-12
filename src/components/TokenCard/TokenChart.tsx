@@ -2,7 +2,7 @@ import { createChart, ColorType } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, ButtonGroup, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useEggsData } from "../../providers/data-provider";
+import { useChartData } from "../../providers/chart-data-provider";
 
 interface TokenChartProps {
   data?: any[];
@@ -28,8 +28,8 @@ export const TokenChart: React.FC<TokenChartProps> = ({
     candleSize, 
     setCandleSize,
     connectionStatus,
-    isChartDataLoading 
-  } = useEggsData();
+    isChartDataLoading
+  } = useChartData();
 
   const [series, setSeries] = useState(null);
   const [chart, setChart] = useState(null);

@@ -19,22 +19,8 @@ import { EggsContract, Gauge, TokenContracts, TokenType } from "./contracts";
 import { Address, formatEther, parseEther } from "viem";
 import useWriteContractAndWaitForConfirm from "../hooks/useWriteContractAndWaitForConfirm";
 import { useEstimateGas } from "../hooks/useEstimateGas";
-import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useWatchContractEvent } from "wagmi";
-import { useVisibilityChange } from "@uidotdev/usehooks";
-import { reformatData } from "../components/Chart/FormatData";
-
-const WS_URL = "wss://eggs-64815067aa3c.herokuapp.com/";
-
-interface ChartDataPoint {
-  timestamp: number;
-  time: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
+import { useChartData } from "./chart-data-provider";
 
 interface EggsContextType {
   // Protocol data
@@ -52,19 +38,6 @@ interface EggsContextType {
   loanByDay2: bigint | undefined;
   loanByDay1: bigint | undefined;
   nextReward: bigint | undefined;
-
-  // Chart data
-  chartData: ChartDataPoint[];
-  isChartDataLoading: boolean;
-  chartDataError: string | null;
-  refreshChartData: () => void;
-  
-  // WebSocket data
-  connectionStatus: string;
-  lastMessage: any;
-  candleSize: number;
-  setCandleSize: (size: number) => void;
-  formattedChartData: any[];
 
   // User data for multiple tokens
   userData: {
@@ -130,15 +103,6 @@ const EggsContext = createContext<EggsContextType>({
   totalCollateral: undefined,
   backing: undefined,
   lastPrice: undefined,
-  chartData: [],
-  isChartDataLoading: false,
-  chartDataError: null,
-  refreshChartData: () => {},
-  connectionStatus: 'Disconnected',
-  lastMessage: null,
-  candleSize: 60,
-  setCandleSize: () => {},
-  formattedChartData: [],
   userData: {
     eggs: {
       loan: undefined,
@@ -195,17 +159,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { address: userAddress, isConnected } = useAccount();
-  const documentVisible = useVisibilityChange();
-
-  // Chart data state
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
-  const [isChartDataLoading, setIsChartDataLoading] = useState(false);
-  const [chartDataError, setChartDataError] = useState<string | null>(null);
-  const [candleSize, setCandleSize] = useState(60);
-  const [updatedata, setUpdateData] = useState<any[]>([]);
-  const [formattedChartData, setFormattedChartData] = useState<any[]>([]);
-  const [ready, setReady] = useState(0);
-  const [fitCheck, setFitCheck] = useState(true);
   
   // Contract prices state
   const [contractPrices, setContractPrices] = useState<{
@@ -213,27 +166,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     yolk?: bigint;
     nest?: bigint;
   }>({});
-  
-  // WebSocket state
-  const [ready, setReady] = useState(0);
-  const [fitCheck, setFitCheck] = useState(true);
-  
-  // WebSocket URL logic - only connect when document is visible or ready
-  const wS_URL = (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
-  
-  // WebSocket connection with proper reconnection logic
-  const { lastMessage, readyState } = useWebSocket(wS_URL, {
-    share: true,
-    shouldReconnect: () => {
-      return documentVisible;
-    },
-    heartbeat: true,
-  });
-  
-  // Track ready state
-  useEffect(() => {
-    setReady(readyState);
-  }, [readyState]);
   
   // Price event listeners for real-time updates
   useWatchContractEvent({
@@ -302,148 +234,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     loadCachedPrices();
-  }, []);
-
-  // WebSocket connection
-  const wS_URL = (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
-  
-  const { lastMessage, readyState } = useWebSocket(wS_URL, {
-    share: true,
-    shouldReconnect: () => {
-      return documentVisible;
-    },
-    heartbeat: true,
-  });
-  
-  useEffect(() => {
-    setReady(readyState);
-  }, [readyState]);
-  
-  // Connection status
-  const connectionStatus = useMemo(() => {
-    switch (readyState) {
-      case ReadyState.CONNECTING:
-        return 'Connecting';
-      case ReadyState.OPEN:
-        return 'Connected';
-      case ReadyState.CLOSING:
-        return 'Disconnecting';
-      case ReadyState.CLOSED:
-        return 'Disconnected';
-      default:
-        return 'Unknown';
-    }
-  }, [readyState]);
-  
-  // Handle WebSocket messages for bulk data
-  useEffect(() => {
-    if (lastMessage && lastMessage.data !== "ping") {
-      try {
-        const _rawData = JSON.parse(lastMessage.data);
-        const rawData = _rawData?.data || [];
-        
-        if (rawData.length > 1) {
-          ready === 1 && setUpdateData((data) => {
-            const __data = [...rawData, ...data.slice(0, 10000)]; // Limit data size
-            const _data = reformatData(__data, candleSize);
-            setFormattedChartData(_data);
-            
-            if (_rawData.isFirst && fitCheck) {
-              setFitCheck(false);
-            }
-            
-            try {
-              localStorage.setItem("egg00ChartData", JSON.stringify(_data.slice(-1000)));
-            } catch (e) {
-              console.warn("Failed to save chart data to localStorage:", e);
-            }
-            
-            return __data;
-          });
-        }
-      } catch (error) {
-        console.warn("Failed to parse WebSocket message:", error);
-      }
-    }
-  }, [lastMessage, candleSize, ready, fitCheck]);
-  
-  // Handle WebSocket messages for single data updates
-  useEffect(() => {
-    if (lastMessage && lastMessage.data !== "ping") {
-      try {
-        const rawData = JSON.parse(lastMessage.data).data;
-        
-        if (rawData.length === 1 && updatedata.length > 0) {
-          if (
-            rawData[0].high != updatedata[updatedata.length - 1].high ||
-            rawData[0].time > updatedata[updatedata.length - 1].time
-          ) {
-            try {
-              let _newData = [...updatedata];
-              _newData[_newData.length - 1] = rawData[0];
-              const __data = reformatData(_newData, candleSize);
-              setFormattedChartData(__data);
-              setUpdateData((s) => [...s.slice(-10000), rawData[0]]);
-            } catch (error) {
-              console.warn("Chart update error:", error);
-            }
-          }
-        }
-      } catch (error) {
-        console.warn("Failed to parse WebSocket message:", error);
-      }
-    }
-  }, [lastMessage, updatedata, candleSize]);
-  
-  // Update formatted data when candle size changes
-  useEffect(() => {
-    if (updatedata.length > 0) {
-      const _data = reformatData(updatedata, candleSize);
-      setFormattedChartData(_data);
-    }
-  }, [candleSize, updatedata]);
-
-
-
-  // Function to refresh chart data
-  const refreshChartData = useCallback(async () => {
-    setIsChartDataLoading(true);
-    setChartDataError(null);
-
-    try {
-      // Try to fetch fresh data from API or WebSocket
-      const cachedData = localStorage.getItem("egg00ChartData");
-      if (cachedData) {
-        const parsedData = JSON.parse(cachedData);
-        if (Array.isArray(parsedData)) {
-          setChartData(parsedData);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to refresh chart data:", error);
-      setChartDataError("Failed to load chart data");
-    } finally {
-      setIsChartDataLoading(false);
-    }
-  }, []);
-
-  // Update chart data when localStorage changes
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "egg00ChartData" && e.newValue) {
-        try {
-          const parsedData = JSON.parse(e.newValue);
-          if (Array.isArray(parsedData)) {
-            setChartData(parsedData);
-          }
-        } catch (error) {
-          console.warn("Failed to parse updated chart data:", error);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Helper function to get contract config for a token
@@ -955,15 +745,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
         loanByDay3,
         loanByDay2,
         loanByDay1,
-        chartData,
-        isChartDataLoading,
-        chartDataError,
-        refreshChartData,
-        connectionStatus,
-        lastMessage,
-        candleSize,
-        setCandleSize,
-        formattedChartData,
         buy,
         sell,
         borrow,

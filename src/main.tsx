@@ -10,6 +10,7 @@ import { ConnectKitProvider } from "connectkit";
 const queryClient = new QueryClient();
 import { ThemeProvider } from "./components/ThemeProvider/ThemeProvider";
 import { EggsProvider } from "./providers/data-provider.tsx";
+import { ChartDataProvider } from "./providers/chart-data-provider.tsx";
 import { Buffer } from "buffer";
 import "@rainbow-me/rainbowkit/styles.css";
 import { connectorsForWallets, WalletList } from "@rainbow-me/rainbowkit";
@@ -72,10 +73,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <QueryClientProvider client={queryClient}>
           <GlobalProvider>
             <RainbowKitProvider>
-              {" "}
-              <EggsProvider>
-                <App />
-              </EggsProvider>
+              <ChartDataProvider>
+                <EggsProvider>
+                  <App />
+                </EggsProvider>
+              </ChartDataProvider>
             </RainbowKitProvider>
           </GlobalProvider>
         </QueryClientProvider>
