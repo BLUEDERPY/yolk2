@@ -24,18 +24,19 @@ export default function useConverter(eggAmount: bigint) {
   const price =
     lastJsonMessage &&
     lastJsonMessage !== "ping" &&
-    lastJsonMessage.data &&
+    lastJsonMessage?.data &&
     lastJsonMessage.data !== "ping" &&
+    Array.isArray(lastJsonMessage.data) &&
     lastJsonMessage.data.length == 1
       ? lastJsonMessage.data[lastJsonMessage.data.length - 1]?.high
       : undefined;
 
   useEffect(() => {
     if (price) {
-      console.log("HEYYYY", lastJsonMessage.data);
+      console.log("HEYYYY", lastJsonMessage?.data);
       localStorage.setItem("eggsLastCovertPrice", price);
     }
-  }, [price, lastJsonMessage.data]);
+  }, [price, lastJsonMessage?.data]);
 
   const _lastPrice = localStorage.getItem("eggsLastCovertPrice") || ".00114025";
 
