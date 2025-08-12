@@ -403,27 +403,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [candleSize, updatedata]);
 
-  // Load chart data from localStorage on mount
-  useEffect(() => {
-    const loadCachedChartData = () => {
-      try {
-        const cachedData = localStorage.getItem("egg00ChartData");
-        if (cachedData) {
-          const parsedData = JSON.parse(cachedData);
-          if (Array.isArray(parsedData) && parsedData.length > 0) {
-            setFormattedChartData(parsedData);
-            setUpdateData(parsedData);
-            console.log("Loaded cached chart data");
-          }
-        }
-      } catch (error) {
-        console.warn("Failed to load cached chart data:", error);
-        localStorage.removeItem("egg00ChartData");
-      }
-    };
 
-    loadCachedChartData();
-  }, []);
 
   // Function to refresh chart data
   const refreshChartData = useCallback(async () => {
