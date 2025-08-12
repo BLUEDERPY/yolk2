@@ -27,7 +27,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const { price } = useWSonicPrice();
   const { sonic: _collateralInSonic } = useConverter(
-    parseEther(value.toString())
+    parseEther(value.toString()), 'eggs'
   );
 
   const collateralInSonic = Number(

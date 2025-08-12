@@ -55,7 +55,7 @@ export const LeverageCalculator = ({
   
   const sonicBalance = balance ? balance.formatted : "0";
 
-  const { sonic: conversionRate } = useConverter(parseEther("1"));
+  const { sonic: conversionRate } = useConverter(parseEther("1"), tokenType);
   const eggsPerSonic = conversionRate ? Number(formatEther(conversionRate)) : 0;
   const { fee, feeWithOverCol } = getleverageFee(
     parseEther(sonicAmount || "0"),
@@ -66,11 +66,11 @@ export const LeverageCalculator = ({
     parseEther(sonicAmount) -
       (feeWithOverCol * BigInt(1e18) -
         (fee * BigInt(1e18) * BigInt(3)) / BigInt(10)) /
-        BigInt(1e18)
+        BigInt(1e18), tokenType
   );
   const requiredEggs = _requiredEggs ? Number(formatEther(_requiredEggs)) : 0;
 
-  const { eggs: _eggsBal } = useConverter(balance?.value || parseEther("0"));
+  const { eggs: _eggsBal } = useConverter(balance?.value || parseEther("0"), tokenType);
 
   const max = getMaxEggsFromFee(
     balance?.value || BigInt(0),

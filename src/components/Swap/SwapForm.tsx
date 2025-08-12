@@ -28,7 +28,7 @@ export const SwapForm: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ t
   const balance = userData[tokenType].backingBalance;
 
   const { sonic: conversionRateToSonic, eggs: conversionRate } = useConverter(
-    parseEther(fromAmount.toString() || "0")
+    parseEther(fromAmount.toString() || "0"), tokenType
   );
 
   const sonicBalance = balance ? Number(balance.formatted).toFixed(6) : "0";
