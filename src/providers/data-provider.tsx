@@ -252,6 +252,47 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       enabled: isConnected,
     });
 
+  // YOLK contract reads
+  const { data: yolkUserLoan, refetch: refetchYolkUserLoan } = useReadContract({
+    abi: TokenContracts.yolk.abi,
+    address: TokenContracts.yolk.address as Address,
+    functionName: "getLoanByAddress",
+    args: [userAddress],
+    enabled: isConnected && TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
+  });
+
+  const { data: yolkUserBalance, refetch: refetchYolkUserBalance } = useReadContract({
+    abi: TokenContracts.yolk.abi,
+    address: TokenContracts.yolk.address as Address,
+    functionName: "balanceOf",
+    args: [userAddress],
+    enabled: isConnected && TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
+  });
+
+  // USDC balance for YOLK backing token (placeholder - update with actual USDC contract)
+  const { data: usdcBalance, refetch: refetchUsdcBalance } = useBalance({
+    address: userAddress,
+    token: "0x29219dd400f2Bf60E5a23d13Be72B486D4038894" as Address, // Placeholder USDC address
+    enabled: isConnected,
+  });
+
+  // NEST contract reads
+  const { data: nestUserLoan, refetch: refetchNestUserLoan } = useReadContract({
+    abi: TokenContracts.nest.abi,
+    address: TokenContracts.nest.address as Address,
+    functionName: "getLoanByAddress",
+    args: [userAddress],
+    enabled: isConnected && TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
+  });
+
+  const { data: nestUserBalance, refetch: refetchNestUserBalance } = useReadContract({
+    abi: TokenContracts.nest.abi,
+    address: TokenContracts.nest.address as Address,
+    functionName: "balanceOf",
+    args: [userAddress],
+    enabled: isConnected && TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
+  });
+
   const { data: ethBalance, refetch: refetchEthBalance } = useBalance({
     address: userAddress,
     enabled: isConnected,
@@ -269,14 +310,26 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       backingBalance: ethBalance,
     },
     yolk: {
-      loan: undefined, // TODO: Add yolk loan data when available
-      balance: undefined, // TODO: Add yolk balance when available
-      backingBalance: undefined, // TODO: Add USDC balance when available
+      loan: yolkUserLoan ? {
+        collateral: yolkUserLoan[0] as bigint,
+        borrowed: yolkUserLoan[1] as bigint,
+        endDate: yolkUserLoan[2] as bigint
+      } : undefined,
+      balance: yolkUserBalance && yolkUserBalance > BigInt(1000) ? yolkUserBalance : undefined,
+      backingBalance: usdcBalance,
     },
     nest: {
-      loan: undefined, // TODO: Add nest loan data when available
-      balance: undefined, // TODO: Add nest balance when available
-      backingBalance: undefined, // TODO: Add eggs balance when available
+      loan: nestUserLoan ? {
+        collateral: nestUserLoan[0] as bigint,
+        borrowed: nestUserLoan[1] as bigint,
+        endDate: nestUserLoan[2] as bigint
+      } : undefined,
+      balance: nestUserBalance && nestUserBalance > BigInt(1000) ? nestUserBalance : undefined,
+      backingBalance: { 
+        ...ethBalance, 
+        value: eggsUserBalance || BigInt(0),
+        formatted: eggsUserBalance ? formatEther(eggsUserBalance) : "0"
+      },
     },
   };
 
@@ -436,9 +489,24 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     refetchBacking();
     refetchLastPrice();
 
+    // EGGS data
     refetchUserLoan();
     refetchUserEggsBalance();
     refetchEthBalance();
+
+    // YOLK data (only if contract is available)
+    if (TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000") {
+      refetchYolkUserLoan();
+      refetchYolkUserBalance();
+      refetchUsdcBalance();
+    }
+
+    // NEST data (only if contract is available)
+    if (TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000") {
+      refetchNestUserLoan();
+      refetchNestUserBalance();
+      // NEST uses EGGS as backing, so refetchUserEggsBalance is already called above
+    }
   };
   // console.log(isSuccess);
   useEffect(() => {
