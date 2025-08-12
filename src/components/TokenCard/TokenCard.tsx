@@ -511,7 +511,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             sx={{
               display: "flex",
               alignItems: "center",
-              {formatPrice(actualPrice)}
+           
               mb: 2,
             }}
           >
