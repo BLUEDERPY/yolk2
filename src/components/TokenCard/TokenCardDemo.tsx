@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Container,
@@ -68,6 +69,8 @@ const generateMockData = (days: number = 30): TokenData => {
 export const TokenCardDemo: React.FC = () => {
   const theme = useTheme();
   const isMdScreen = useMediaQuery(theme.breakpoints.up("md"));
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [tokenData, setTokenData] = useState<TokenData | undefined>();
   const [isLoading, setIsLoading] = useState(true);
@@ -93,6 +96,29 @@ export const TokenCardDemo: React.FC = () => {
     loadData();
   }, []);
 
+  // Handle browser back button to collapse expanded cards
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (expandedCard) {
+        event.preventDefault();
+        setExpandedCard(null);
+        // Push the current state back to prevent actual navigation
+        window.history.pushState(null, '', location.pathname);
+      }
+    };
+
+    // Add state to history when a card is expanded
+    if (expandedCard) {
+      window.history.pushState({ expandedCard }, '', location.pathname);
+    }
+
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [expandedCard, location.pathname]);
+
   const handleExpandChange = (
     cardId: string,
     expanded: boolean,
@@ -114,6 +140,10 @@ export const TokenCardDemo: React.FC = () => {
       setExpandedCard(cardId);
     } else {
       setExpandedCard(null);
+      // Remove the history state when collapsing
+      if (window.history.state?.expandedCard) {
+        window.history.back();
+      }
     }
   };
 
