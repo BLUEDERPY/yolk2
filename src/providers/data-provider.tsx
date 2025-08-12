@@ -523,6 +523,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       } : undefined,
       balance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
       backingBalance: ethBalance,
+      price: contractPrices.eggs || eggsPrice,
     },
     yolk: {
       loan: yolkUserLoan ? {
@@ -532,6 +533,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       } : undefined,
       balance: yolkUserBalance && yolkUserBalance > BigInt(1000) ? yolkUserBalance : undefined,
       backingBalance: usdcBalance,
+      price: contractPrices.yolk || yolkPrice,
     },
     nest: {
       loan: nestUserLoan ? {
@@ -545,6 +547,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
         value: userEggsBalance || BigInt(0),
         formatted: userEggsBalance ? formatEther(userEggsBalance) : "0"
       },
+      price: contractPrices.nest || nestPrice,
     },
   };
 

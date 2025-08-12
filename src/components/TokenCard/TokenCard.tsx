@@ -202,6 +202,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const userEggsBalance = currentTokenData.balance;
   const userSonicBalance = currentTokenData.backingBalance;
   const loan = currentTokenData.loan;
+  const contractPrice = currentTokenData.price;
+
+  // Calculate actual price from contract
+  const actualPrice = contractPrice ? Number(formatEther(contractPrice)) : tokenData?.price || 0;
 
   // Get lending state for the lending tab
   const {
@@ -508,7 +512,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              {formatPrice(actualPrice)}
               mb: 2,
             }}
           >
@@ -840,7 +844,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     TVL
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 600, fontSize: "0.8rem" }}>
-                    ${nFormatter(tokenData.totalBorrowed * tokenData.price, 2)}
+                    ${nFormatter(tokenData.totalBorrowed * actualPrice, 2)}
                   </Typography>
                 </Box>
               </Grid>

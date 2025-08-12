@@ -9,16 +9,17 @@ export default function useConverter(eggAmount: bigint, tokenType: TokenType = '
   // Get price from the specific token's contract data
   const contractPrice = userData[tokenType].price;
   
-  const price =
-    contractPrice ? formatEther(contractPrice) :
-    (lastMessage &&
-    lastMessage !== "ping" &&
-    lastMessage?.data &&
-    lastMessage?.data !== "ping" &&
-    Array.isArray(lastMessage?.data) &&
-    lastMessage?.data.length === 1
-      ? lastMessage?.data[lastMessage?.data.length - 1]?.high
-      : undefined);
+  // Use contract price first, then fallback to WebSocket data for EGGS only
+  const price = contractPrice 
+    ? formatEther(contractPrice)
+    : (tokenType === 'eggs' && lastMessage &&
+       lastMessage !== "ping" &&
+       lastMessage?.data &&
+       lastMessage?.data !== "ping" &&
+       Array.isArray(lastMessage?.data) &&
+       lastMessage?.data.length === 1
+         ? lastMessage?.data[lastMessage?.data.length - 1]?.high
+         : undefined);
 
   useEffect(() => {
     if (contractPrice) {
