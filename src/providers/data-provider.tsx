@@ -134,17 +134,20 @@ const EggsContext = createContext<EggsContextType>({
       balance: undefined,
       backingBalance: undefined,
       price: undefined,
+      price: undefined,
     },
     yolk: {
       loan: undefined,
       balance: undefined,
       backingBalance: undefined,
       price: undefined,
+      price: undefined,
     },
     nest: {
       loan: undefined,
       balance: undefined,
       backingBalance: undefined,
+      price: undefined,
       price: undefined,
     },
   },
@@ -194,6 +197,13 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [formattedChartData, setFormattedChartData] = useState<any[]>([]);
   const [ready, setReady] = useState(0);
   const [fitCheck, setFitCheck] = useState(true);
+  
+  // Contract prices state
+  const [contractPrices, setContractPrices] = useState<{
+    eggs?: bigint;
+    yolk?: bigint;
+    nest?: bigint;
+  }>({});
   
   // WebSocket connection
   const wS_URL = (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
@@ -441,6 +451,22 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     functionName: "lastPrice",
   });
 
+  // YOLK price read
+  const { data: yolkPrice, refetch: refetchYolkPrice } = useReadContract({
+    abi: TokenContracts.yolk.abi,
+    address: TokenContracts.yolk.address as Address,
+    functionName: "lastPrice",
+    enabled: TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
+  });
+
+  // NEST price read
+  const { data: nestPrice, refetch: refetchNestPrice } = useReadContract({
+    abi: TokenContracts.nest.abi,
+    address: TokenContracts.nest.address as Address,
+    functionName: "lastPrice",
+    enabled: TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
+  });
+
   // User data reads
   const { data: userLoan, refetch: refetchUserLoan } = useReadContract({
     abi: EggsContract.abi,
@@ -523,7 +549,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       } : undefined,
       balance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
       backingBalance: ethBalance,
-      price: contractPrices.eggs || eggsPrice,
+      price: contractPrices.eggs || lastPrice,
     },
     yolk: {
       loan: yolkUserLoan ? {
@@ -794,6 +820,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     refetchTotalCollateral();
     refetchBacking();
     refetchLastPrice();
+    refetchYolkPrice();
+    refetchNestPrice();
 
     // EGGS data
     refetchUserLoan();
