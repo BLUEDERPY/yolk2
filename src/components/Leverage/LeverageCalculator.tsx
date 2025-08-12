@@ -98,14 +98,13 @@ export const LeverageCalculator = ({
   const calculateROI = (priceIncrease: number) => {
     const initialCollateralValue = requiredEggs;
     const newCollateralValue = requiredEggs * (1 + priceIncrease);
-    const borrowedValue = Number(sonicAmount) / eggsPerSonic;
     const roi =
       ((newCollateralValue - initialCollateralValue) / initialCollateralValue) *
       100;
     const profit =
-      (newCollateralValue * roi - newCollateralValue * 100) / 10000 - loanFee;
+      (newCollateralValue - initialCollateralValue) - loanFee;
 
-    return { profit: profit / 100, roi };
+    return { profit, roi };
   };
 
   const getScenstio = (incre) => {
