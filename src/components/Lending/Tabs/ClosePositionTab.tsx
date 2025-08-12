@@ -80,25 +80,35 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
       ) : (
         <>
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <Stack spacing={3}>
+            <Stack spacing={4}>
               <ToggleButtonGroup
                 value={closeMethod}
                 exclusive
                 onChange={(_, value) => value && setCloseMethod(value)}
                 fullWidth
+                sx={{
+                  height: 56,
+                  "& .MuiToggleButton-root": {
+                    fontSize: "1.1rem",
+                    fontWeight: 600,
+                    py: 2,
+                  },
+                }}
               >
                 <ToggleButton value="standard">Standard Repay</ToggleButton>
                 <ToggleButton value="flash">Flash Close</ToggleButton>
               </ToggleButtonGroup>
 
               {closeMethod === "standard" ? (
-                <Stack spacing={2}>
-                  <Typography variant="subtitle2">
+                <Stack spacing={3}>
+                  <Typography variant="h6" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
                     Required SONIC to Repay
                   </Typography>
                   <TextField
+                    label="Repay Amount (SONIC)"
                     type="number"
                     value={repayAmount}
+                    size="large"
                     onChange={(e) => {
                       const value = Number(e.target.value);
                       if (value >= 0 && value <= borrowed) {
@@ -108,16 +118,34 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <Button onClick={handleMaxRepay} size="small">
+                          <Button 
+                            onClick={handleMaxRepay} 
+                            size="medium"
+                            sx={{ fontSize: '1rem', fontWeight: 600 }}
+                          >
                             MAX
                           </Button>
                         </InputAdornment>
                       ),
                     }}
-                    helperText={`Max repayable: ${nFormatter(borrowed, 2)} SONIC`}
+                    helperText={
+                      <Typography variant="body1" sx={{ fontSize: '1rem', mt: 1 }}>
+                        Max repayable: {nFormatter(borrowed, 2)} SONIC
+                      </Typography>
+                    }
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        height: 64,
+                        fontSize: "1.2rem",
+                      },
+                      "& .MuiInputLabel-root": {
+                        fontSize: "1.1rem",
+                      },
+                    }}
                   />
 
-                  <Alert severity="info">
+                  <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
+                    <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
                     {Number(repayAmount) === borrowed ? (
                       <>
                         After repayment, you will receive{" "}
@@ -130,29 +158,36 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                         {nFormatter(borrowed - Number(repayAmount), 2)} SONIC
                       </>
                     )}
+                    </Typography>
                   </Alert>
                 </Stack>
               ) : (
-                <Stack spacing={2}>
+                <Stack spacing={3}>
                   {maxRemovable < 0 ? (
-                    <Alert severity="info">
-                      Your collateral value must be 1% higher than your borrowed
-                      amount to use this function.
+                    <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
+                      <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
+                        Your collateral value must be 1% higher than your borrowed
+                        amount to use this function.
+                      </Typography>
                     </Alert>
                   ) : (
-                    <Alert severity="warning">
-                      Flash close will swap your collateral for SONIC to repay the
-                      loan in a single transaction. Using this function result in 1%
-                      fee.
+                    <Alert severity="warning" sx={{ fontSize: '1rem', py: 2 }}>
+                      <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
+                        Flash close will swap your collateral for SONIC to repay the
+                        loan in a single transaction. Using this function result in 1%
+                        fee.
+                      </Typography>
                     </Alert>
                   )}
 
-                  <Stack spacing={0}>
-                    <Typography variant="subtitle2">Estimated Return</Typography>
-                    <Typography variant="h6">
+                  <Stack spacing={2}>
+                    <Typography variant="h6" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                      Estimated Return
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontSize: '1.8rem', fontWeight: 700 }}>
                       {nFormatter(maxRemovable, 8)} Sonic
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '1rem' }}>
                       After 1% flash close fee
                     </Typography>
                   </Stack>
@@ -173,6 +208,12 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                 onClick={handleClose}
                 color="primary"
                 fullWidth
+                size="large"
+                sx={{
+                  py: 2,
+                  fontSize: "1.2rem",
+                  fontWeight: 600,
+                }}
               >
                 {Number(repayAmount) === borrowed
                   ? "Repay & Close Position"
@@ -185,6 +226,12 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                 onClick={handleFlashClose}
                 color="error"
                 fullWidth
+                size="large"
+                sx={{
+                  py: 2,
+                  fontSize: "1.2rem",
+                  fontWeight: 600,
+                }}
               >
                 Flash Close Position
               </Button>

@@ -59,7 +59,7 @@ export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
       ) : (
         <>
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <Stack spacing={3}>
+            <Stack spacing={4}>
               <Grid
                 container
                 sx={{
@@ -69,30 +69,38 @@ export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
                 }}
               >
                 <Grid item>
-                  <Stack spacing={2}>
-                    <Typography variant="subtitle2">New Expiration Date</Typography>
-                    <Typography variant="h6">
+                  <Stack spacing={3}>
+                    <Typography variant="h6" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                      New Expiration Date
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontSize: '1.4rem', fontWeight: 700 }}>
                       {formatDate(newExpiry)}{" "}
                       {newExpiry.toLocaleTimeString().replace(/:\d+ /, " ")}
                     </Typography>
                   </Stack>
                 </Grid>
                 <Grid item>
-                  <Stack spacing={2}>
-                    <Typography variant="subtitle2">Extension Period</Typography>
-                    <Typography variant="h6"> {extensionDays} days</Typography>
+                  <Stack spacing={3}>
+                    <Typography variant="h6" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                      Extension Period
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontSize: '1.4rem', fontWeight: 700 }}>
+                      {extensionDays} days
+                    </Typography>
                   </Stack>
                 </Grid>
               </Grid>
 
-              <Stack spacing={2}>
+              <Stack spacing={3}>
                 <Grid
                   container
-                  spacing={2}
+                  spacing={3}
                   sx={{ alignItems: "center", width: "100%" }}
                 >
                   <Grid item>
-                    <Typography variant="subtitle2">1 day</Typography>
+                    <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
+                      1 day
+                    </Typography>
                   </Grid>
                   <Grid item xs>
                     <Slider
@@ -100,15 +108,28 @@ export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
                       onChange={(_, value) => setExtensionDays(value as number)}
                       min={1}
                       max={max}
+                      sx={{
+                        height: 8,
+                        "& .MuiSlider-thumb": {
+                          width: 24,
+                          height: 24,
+                        },
+                      }}
                     />
                   </Grid>
                   <Grid item>
-                    <Typography variant="subtitle2">{max} days</Typography>
+                    <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
+                      {max} days
+                    </Typography>
                   </Grid>
                 </Grid>
               </Stack>
 
-              <Alert severity="info">Extension fee: {feeAmount.toFixed(4)} S</Alert>
+              <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
+                <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                  Extension fee: {feeAmount.toFixed(4)} S
+                </Typography>
+              </Alert>
             </Stack>
           </Box>
 
@@ -118,6 +139,12 @@ export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
               onClick={() => extendLoan(extensionDays, formatEther(fee), tokenType)}
               disabled={extensionDays <= 0 || balance?.value < fee}
               fullWidth
+              size="large"
+              sx={{
+                py: 2,
+                fontSize: "1.2rem",
+                fontWeight: 600,
+              }}
             >
               Extend Loan
             </Button>

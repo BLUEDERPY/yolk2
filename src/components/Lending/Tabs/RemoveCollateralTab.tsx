@@ -63,11 +63,13 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
       ) : (
         <>
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <Stack spacing={3}>
+            <Stack spacing={4}>
               <Stack spacing={2}>
                 <TextField
+                  label="Amount to Remove (EGGS)"
                   type="number"
                   value={removalAmount}
+                  size="large"
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -75,7 +77,8 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
                           onClick={() => {
                             setRemovalAmount(maxRemovable);
                           }}
-                          size="small"
+                          size="medium"
+                          sx={{ fontSize: '1rem', fontWeight: 600 }}
                         >
                           MAX
                         </Button>
@@ -89,13 +92,26 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
                     }
                   }}
                   fullWidth
-                  helperText={`Remaining collateral: ${remainingCollateral.toFixed(
-                    2
-                  )} EGGS`}
+                  helperText={
+                    <Typography variant="body1" sx={{ fontSize: '1rem', mt: 1 }}>
+                      Remaining collateral: {remainingCollateral.toFixed(2)} EGGS
+                    </Typography>
+                  }
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      height: 64,
+                      fontSize: "1.2rem",
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "1.1rem",
+                    },
+                  }}
                 />
               </Stack>
-              <Alert severity="info">
-                Maximum removable amount: {maxRemovable.toFixed(2)} EGGS
+              <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
+                <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
+                  Maximum removable amount: {maxRemovable.toFixed(2)} EGGS
+                </Typography>
               </Alert>
             </Stack>
           </Box>
@@ -108,6 +124,12 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
                 Number(removalAmount) <= 0 || Number(removalAmount) > maxRemovable
               }
               fullWidth
+              size="large"
+              sx={{
+                py: 2,
+                fontSize: "1.2rem",
+                fontWeight: 600,
+              }}
             >
               Remove {removalAmount} EGGS
             </Button>
