@@ -133,16 +133,19 @@ const EggsContext = createContext<EggsContextType>({
       loan: undefined,
       balance: undefined,
       backingBalance: undefined,
+      price: undefined,
     },
     yolk: {
       loan: undefined,
       balance: undefined,
       backingBalance: undefined,
+      price: undefined,
     },
     nest: {
       loan: undefined,
       balance: undefined,
       backingBalance: undefined,
+      price: undefined,
     },
   },
   userLoan: undefined,
@@ -191,15 +194,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [formattedChartData, setFormattedChartData] = useState<any[]>([]);
   const [ready, setReady] = useState(0);
   const [fitCheck, setFitCheck] = useState(true);
-  const [contractPrices, setContractPrices] = useState<{
-    eggs: bigint | undefined;
-    yolk: bigint | undefined;
-    nest: bigint | undefined;
-  }>({
-    eggs: undefined,
-    yolk: undefined,
-    nest: undefined,
-  });
   
   // WebSocket connection
   const wS_URL = (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
@@ -216,68 +210,6 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     setReady(readyState);
   }, [readyState]);
   
-  // Web3 WebSocket for contract events
-  const publicClient = usePublicClient();
-  
-  useEffect(() => {
-    if (!publicClient) return;
-
-    // Listen for Price events from all token contracts
-    const unsubscribeEggs = publicClient.watchContractEvent({
-      address: TokenContracts.eggs.address as Address,
-      abi: TokenContracts.eggs.abi,
-      eventName: 'Price',
-      onLogs: (logs) => {
-        logs.forEach((log) => {
-          if (log.args && log.args.price) {
-            setContractPrices(prev => ({
-              ...prev,
-              eggs: log.args.price as bigint
-            }));
-          }
-        });
-      },
-    });
-
-    const unsubscribeYolk = publicClient.watchContractEvent({
-      address: TokenContracts.yolk.address as Address,
-      abi: TokenContracts.yolk.abi,
-      eventName: 'Price',
-      onLogs: (logs) => {
-        logs.forEach((log) => {
-          if (log.args && log.args.price) {
-            setContractPrices(prev => ({
-              ...prev,
-              yolk: log.args.price as bigint
-            }));
-          }
-        });
-      },
-    });
-
-    const unsubscribeNest = publicClient.watchContractEvent({
-      address: TokenContracts.nest.address as Address,
-      abi: TokenContracts.nest.abi,
-      eventName: 'Price',
-      onLogs: (logs) => {
-        logs.forEach((log) => {
-          if (log.args && log.args.price) {
-            setContractPrices(prev => ({
-              ...prev,
-              nest: log.args.price as bigint
-            }));
-          }
-        });
-      },
-    });
-
-    return () => {
-      unsubscribeEggs();
-      unsubscribeYolk();
-      unsubscribeNest();
-    };
-  }, [publicClient]);
-
   // Connection status
   const connectionStatus = useMemo(() => {
     switch (readyState) {
@@ -720,6 +652,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     }
   };
+  const publicClient = usePublicClient();
 
   const estimatedGas = 0; /* useEstimateGas({
     abi,

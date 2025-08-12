@@ -1,28 +1,39 @@
 import { formatEther, parseEther } from "viem";
 import { useEffect } from "react";
 import { useEggsData } from "../providers/data-provider";
+import { TokenType } from "../providers/contracts";
 
-export default function useConverter(eggAmount: bigint) {
+export default function useConverter(eggAmount: bigint, tokenType: TokenType = 'eggs') {
   const { lastMessage } = useEggsData();
 
+  // Get price from the specific token's contract data
+  const contractPrice = userData[tokenType].price;
+  
   const price =
-    lastMessage &&
+    contractPrice ? formatEther(contractPrice) :
+    (lastMessage &&
     lastMessage !== "ping" &&
     lastMessage?.data &&
     lastMessage?.data !== "ping" &&
     Array.isArray(lastMessage?.data) &&
     lastMessage?.data.length === 1
       ? lastMessage?.data[lastMessage?.data.length - 1]?.high
-      : undefined;
+      : undefined);
 
   useEffect(() => {
-    if (price) {
+    if (contractPrice) {
+      localStorage.setItem(`${tokenType}LastConvertPrice`, formatEther(contractPrice));
+    } else if (price) {
       console.log("Price update:", lastMessage?.data);
       localStorage.setItem("eggsLastCovertPrice", price);
     }
-  }, [price, lastMessage?.data]);
+  }, [contractPrice, price, lastMessage?.data, tokenType]);
 
-  const _lastPrice = localStorage.getItem("eggsLastCovertPrice") || ".00114025";
+  const _lastPrice = contractPrice 
+    ? formatEther(contractPrice)
+    : localStorage.getItem(`${tokenType}LastConvertPrice`) || 
+      localStorage.getItem("eggsLastCovertPrice") || 
+      ".00114025";
 
   const sonic =
     _lastPrice && eggAmount
