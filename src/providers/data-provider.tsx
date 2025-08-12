@@ -20,6 +20,7 @@ import { Address, formatEther, parseEther } from "viem";
 import useWriteContractAndWaitForConfirm from "../hooks/useWriteContractAndWaitForConfirm";
 import { useEstimateGas } from "../hooks/useEstimateGas";
 import useWebSocket, { ReadyState } from "react-use-websocket";
+import { useWatchContractEvent } from "wagmi";
 import { useVisibilityChange } from "@uidotdev/usehooks";
 import { reformatData } from "../components/Chart/FormatData";
 
@@ -71,17 +72,27 @@ interface EggsContextType {
       loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
       balance: bigint | undefined;
       backingBalance: any | undefined;
+      price: bigint | undefined;
     };
     yolk: {
       loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
       balance: bigint | undefined;
       backingBalance: any | undefined;
+      price: bigint | undefined;
     };
     nest: {
       loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
       balance: bigint | undefined;
       backingBalance: any | undefined;
+      price: bigint | undefined;
     };
+  };
+  
+  // Contract prices for conversions
+  contractPrices: {
+    eggs?: bigint;
+    yolk?: bigint;
+    nest?: bigint;
   };
   
   // Legacy compatibility - will be deprecated
@@ -134,13 +145,11 @@ const EggsContext = createContext<EggsContextType>({
       balance: undefined,
       backingBalance: undefined,
       price: undefined,
-      price: undefined,
     },
     yolk: {
       loan: undefined,
       balance: undefined,
       backingBalance: undefined,
-      price: undefined,
       price: undefined,
     },
     nest: {
@@ -148,9 +157,9 @@ const EggsContext = createContext<EggsContextType>({
       balance: undefined,
       backingBalance: undefined,
       price: undefined,
-      price: undefined,
     },
   },
+  contractPrices: {},
   userLoan: undefined,
   userEggsBalance: undefined,
   userSonicBalance: undefined,
@@ -205,6 +214,75 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     nest?: bigint;
   }>({});
   
+  // Price event listeners for real-time updates
+  useWatchContractEvent({
+    address: EggsContract.address as Address,
+    abi: EggsContract.abi,
+    eventName: 'Price',
+    onLogs(logs) {
+      const latestLog = logs[logs.length - 1];
+      if (latestLog && latestLog.args) {
+        const { price } = latestLog.args as { time: bigint; price: bigint; volumeInSonic: bigint };
+        if (price) {
+          setContractPrices(prev => ({ ...prev, eggs: price }));
+          localStorage.setItem('eggsLastConvertPrice', formatEther(price));
+        }
+      }
+    },
+  });
+
+  useWatchContractEvent({
+    address: TokenContracts.yolk.address as Address,
+    abi: TokenContracts.yolk.abi,
+    eventName: 'Price',
+    enabled: TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
+    onLogs(logs) {
+      const latestLog = logs[logs.length - 1];
+      if (latestLog && latestLog.args) {
+        const { price } = latestLog.args as { time: bigint; price: bigint; volumeInSonic: bigint };
+        if (price) {
+          setContractPrices(prev => ({ ...prev, yolk: price }));
+          localStorage.setItem('yolkLastConvertPrice', formatEther(price));
+        }
+      }
+    },
+  });
+
+  useWatchContractEvent({
+    address: TokenContracts.nest.address as Address,
+    abi: TokenContracts.nest.abi,
+    eventName: 'Price',
+    enabled: TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
+    onLogs(logs) {
+      const latestLog = logs[logs.length - 1];
+      if (latestLog && latestLog.args) {
+        const { price } = latestLog.args as { time: bigint; price: bigint; volumeInSonic: bigint };
+        if (price) {
+          setContractPrices(prev => ({ ...prev, nest: price }));
+          localStorage.setItem('nestLastConvertPrice', formatEther(price));
+        }
+      }
+    },
+  });
+
+  // Load cached prices on mount
+  useEffect(() => {
+    const loadCachedPrices = () => {
+      const eggsPrice = localStorage.getItem("eggsLastConvertPrice");
+      const yolkPrice = localStorage.getItem("yolkLastConvertPrice");
+      const nestPrice = localStorage.getItem("nestLastConvertPrice");
+      
+      setContractPrices(prev => ({
+        ...prev,
+        eggs: eggsPrice ? parseEther(eggsPrice) : prev.eggs,
+        yolk: yolkPrice ? parseEther(yolkPrice) : prev.yolk,
+        nest: nestPrice ? parseEther(nestPrice) : prev.nest,
+      }));
+    };
+
+    loadCachedPrices();
+  }, []);
+
   // WebSocket connection
   const wS_URL = (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
   
@@ -469,11 +547,12 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Update contract prices when price data changes
   useEffect(() => {
-    setContractPrices({
-      eggs: lastPrice,
-      yolk: yolkPrice,
-      nest: nestPrice,
-    });
+    // Only update if we don't have real-time prices from events
+    setContractPrices(prev => ({
+      eggs: prev.eggs || lastPrice,
+      yolk: prev.yolk || yolkPrice,
+      nest: prev.nest || nestPrice,
+    }));
   }, [lastPrice, yolkPrice, nestPrice]);
 
   // User data reads
@@ -905,6 +984,9 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Multi-token user data
         userData,
+        
+        // Contract prices for conversions
+        contractPrices,
         
         // Legacy compatibility
         userLoan: userLoan as { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined,
