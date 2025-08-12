@@ -327,8 +327,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       balance: nestUserBalance && nestUserBalance > BigInt(1000) ? nestUserBalance : undefined,
       backingBalance: { 
         ...ethBalance, 
-        value: eggsUserBalance || BigInt(0),
-        formatted: eggsUserBalance ? formatEther(eggsUserBalance) : "0"
+        value: userEggsBalance || BigInt(0),
+        formatted: userEggsBalance ? formatEther(userEggsBalance) : "0"
       },
     },
   };
