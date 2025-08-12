@@ -38,7 +38,7 @@ import { auroraBorderRadius } from "../../themes/aurora";
 import { useEggsData } from "../../providers/data-provider";
 import useConverter from "../../hooks/useConverter";
 import { formatEther, parseEther } from "viem";
-import { SwapInput } from "../Swap/SwapInput";
+import { SwapForm } from "../Swap/SwapForm";
 import LoadingScreen from "../LoadingScreen";
 import { LeverageCalculator } from "../Leverage/LeverageCalculator";
 import { BorrowInputs } from "../Lending/BorrowInputs";
@@ -183,18 +183,9 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   onTabChange,
 }) => {
   const theme = useTheme();
-  const [tradeAmount, setTradeAmount] = useState("");
-  const [tradeDirection, setTradeDirection] = useState<"buy" | "sell">("buy");
 
   // Get real trading data
-  const {
-    userData,
-    buy,
-    sell,
-    isPending: isTrading,
-    isConfirming: isConfirmingTrade,
-    isSuccess: isTradeSuccess,
-  } = useEggsData();
+  const { userData } = useEggsData();
 
   // Determine token type from tokenData
   const tokenType: TokenType = tokenData ? getTokenTypeFromSymbol(tokenData.symbol) : 'eggs';
@@ -223,8 +214,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     balance,
     max,
   } = useLendingState(tokenType);
-  const { sonic: conversionRateToSonic, eggs: conversionRateToEggs } =
-    useConverter(parseEther(tradeAmount.toString() || "0"), tokenType);
 
   const eggsBalance = userEggsBalance
     ? Number(formatEther(userEggsBalance))
@@ -233,15 +222,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     ? Number(userSonicBalance.formatted)
     : 0;
 
-  // Calculate conversion amounts
-  const convertedAmount =
-    tradeDirection === "buy"
-      ? conversionRateToEggs
-        ? Number(formatEther(conversionRateToEggs)) * 0.99
-        : 0
-      : conversionRateToSonic
-      ? Number(formatEther(conversionRateToSonic)) * 0.99
-      : 0;
 
   const [selectedTimeframe, setSelectedTimeframe] = useState<
     "24h" | "7d" | "30d" | "1y"
@@ -263,13 +243,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     return `${sign}${change.toFixed(2)}%`;
   };
 
-  const handleTradeSubmit = () => {
-    if (tradeDirection === "buy") {
-      buy(tradeAmount, tokenType);
-    } else {
-      sell(tradeAmount, tokenType);
-    }
-  };
 
   const handleActionClick = (tab: "trade" | "lend" | "leverage" | "chart") => {
     console.log("Action clicked, setting tab to:", tab);
@@ -306,89 +279,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       case "trade":
         return (
           <Box sx={{ p: 2, pt: 1, height: "100%", display: "flex", alignItems: "flex-start" }}>
-            <Stack spacing={3} sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
-              {isTrading || isConfirmingTrade ? (
-                <LoadingScreen />
-              ) : (
-                <>
-                  <Box sx={{ textAlign: "center", mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Swap Tokens
-                    </Typography>
-                  </Box>
-                  
-                  <SwapInput
-                    tokenType={tokenType}
-                    label={tradeDirection === "buy" ? tokenConfig.backingTitle : tokenConfig.tokenName}
-                    value={tradeAmount}
-                    onChange={setTradeAmount}
-                    balance={
-                      tradeDirection === "buy"
-                        ? sonicBalance.toString()
-                        : eggsBalance.toString()
-                    }
-                    onMax={() =>
-                      setTradeAmount(
-                        tradeDirection === "buy"
-                          ? sonicBalance.toString()
-                          : eggsBalance.toString()
-                      )
-                    }
-                  />
-                  <Button
-                    onClick={() =>
-                      setTradeDirection(
-                        tradeDirection === "buy" ? "sell" : "buy"
-                      )
-                    }
-                    sx={{
-                      width: "40px",
-                      minWidth: "40px",
-                      height: "40px",
-                      p: 0,
-                      alignSelf: "center",
-                      borderRadius: "50%",
-                    }}
-                  >
-                    <ArrowUpDown size={20} />
-                  </Button>
-                  <SwapInput
-                    tokenType={tokenType}
-                    label={tradeDirection === "buy" ? tokenConfig.tokenName : tokenConfig.backingTitle}
-                    value={convertedAmount.toFixed(6)}
-                    onChange={() => {}}
-                    balance={
-                      tradeDirection === "buy"
-                        ? eggsBalance.toString()
-                        : sonicBalance.toString()
-                    }
-                    disabled
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={handleTradeSubmit}
-                    disabled={
-                      !tradeAmount ||
-                      Number(tradeAmount) <= 0 ||
-                      Number(tradeAmount) >
-                        (tradeDirection === "buy"
-                          ? Number(sonicBalance)
-                          : Number(eggsBalance))
-                    }
-                    startIcon={<ArrowDownUp size={16} />}
-                    fullWidth
-                    sx={{
-                      py: 1.5,
-                      fontSize: "1rem",
-                      fontWeight: 600,
-                      borderRadius: 2,
-                    }}
-                  >
-                    Swap
-                  </Button>
-                </>
-              )}
-            </Stack>
+            <SwapForm 
+              tokenType={tokenType} 
+              compact={true}
+              showMintEndedMessage={false}
+            />
           </Box>
         );
 

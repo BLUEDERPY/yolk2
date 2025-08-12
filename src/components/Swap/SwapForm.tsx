@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Stack, Button, Typography, Link } from "@mui/material";
+import { Stack, Button, Typography, Link, Box } from "@mui/material";
 import { SwapInput } from "./SwapInput";
 import { SwapButton } from "./SwapButton";
 import { ArrowUpDown } from "lucide-react";
@@ -10,9 +10,19 @@ import LoadingScreen from "../LoadingScreen";
 import { useEggsData } from "../../providers/data-provider";
 import useConverter from "../../hooks/useConverter";
 
-export const SwapForm: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ tokenType = 'eggs' }) => {
+interface SwapFormProps {
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+  compact?: boolean;
+  showMintEndedMessage?: boolean;
+}
+
+export const SwapForm: React.FC<SwapFormProps> = ({ 
+  tokenType = 'eggs', 
+  compact = false,
+  showMintEndedMessage = true 
+}) => {
   const [fromAmount, setFromAmount] = useState<string>("");
-  const [isEggsToSonic, setIsEggsToSonic] = useState(true);
+  const [tradeDirection, setTradeDirection] = useState<"buy" | "sell">("buy");
 
   const {
     userData,
@@ -27,32 +37,43 @@ export const SwapForm: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ t
   const eggsBalance = userData[tokenType].balance;
   const balance = userData[tokenType].backingBalance;
 
-  const { sonic: conversionRateToSonic, eggs: conversionRate } = useConverter(
+  const { sonic: conversionRateToSonic, eggs: conversionRateToEggs } = useConverter(
     parseEther(fromAmount.toString() || "0"), tokenType
   );
 
   const sonicBalance = balance ? Number(balance.formatted).toFixed(6) : "0";
   const eggsBalanceFormatted = Number(formatEther(eggsBalance || "0"));
 
-  const toAmount =
-    conversionRate && conversionRateToSonic
-      ? (
-          Number(
-            formatEther(isEggsToSonic ? conversionRateToSonic : conversionRate)
-          ) * 0.975
-        ).toFixed(6)
-      : "";
+  const convertedAmount =
+    tradeDirection === "buy"
+      ? conversionRateToEggs
+        ? Number(formatEther(conversionRateToEggs)) * 0.99
+        : 0
+      : conversionRateToSonic
+      ? Number(formatEther(conversionRateToSonic)) * 0.99
+      : 0;
+
+  // Get token configuration
+  const tokenConfig = {
+    eggs: { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" },
+    yolk: { tokenName: "YOLK", backingToken: "USDC", backingTitle: "USDC" },
+    nest: { tokenName: "NEST", backingToken: "EGGS", backingTitle: "Eggs" },
+  }[tokenType];
 
   const handleFromAmountChange = (value: string) => {
     setFromAmount(value);
   };
 
-  const handleSwapDirection = () => {};
-  const handleBuy = () => {
-    buy(fromAmount, tokenType);
+  const handleSwapDirection = () => {
+    setTradeDirection(tradeDirection === "buy" ? "sell" : "buy");
   };
-  const handleSell = () => {
-    sell(fromAmount, tokenType);
+
+  const handleTradeSubmit = () => {
+    if (tradeDirection === "buy") {
+      buy(fromAmount, tokenType);
+    } else {
+      sell(fromAmount, tokenType);
+    }
   };
 
   useEffect(() => {
@@ -61,26 +82,29 @@ export const SwapForm: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ t
     }
   }, [isSuccess]);
 
-  return (
-    <Stack 
-      spacing={3} 
-      sx={{ 
-        minHeight: 575, 
-        flex: 1,
-        justifyContent: "center",
-        py: { xs: "24px", sm: "30px" },
-        px: { xs: "24px", sm: 6, md: 8 },
-      }}
-    >
-      {isConfirming || isPending ? (
+  if (isConfirming || isPending) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: compact ? '200px' : '300px',
+        width: '100%'
+      }}>
         <LoadingScreen />
-      ) : (
-        <>
-          <Stack spacing={3} sx={{ textAlign: "center" }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-              Swap Tokens
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      </Box>
+    );
+  }
+
+  return (
+    <Stack spacing={3} sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
+      {!compact && (
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Swap Tokens
+          </Typography>
+          {showMintEndedMessage && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Mint has ended, if you would like to purchase eggs please go to{" "}
               <Link
                 target={"_blank"}
@@ -92,65 +116,80 @@ export const SwapForm: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = ({ t
                 Shadow Exchange
               </Link>
             </Typography>
-            <Typography variant="h6" align="center" sx={{ mb: 3, fontWeight: 600 }}>
-              Sell EGGS
-            </Typography>
-
-            <Stack spacing={3} sx={{ maxWidth: 400, mx: "auto", width: "100%" }}>
-               <SwapInput
-                 label={isEggsToSonic ? "EGGS" : "S"}
-                 value={fromAmount}
-                 onChange={handleFromAmountChange}
-                 balance={isEggsToSonic ? eggsBalanceFormatted.toString() : sonicBalance}
-                 onMax={() =>
-                   handleFromAmountChange(
-                     isEggsToSonic ? eggsBalanceFormatted.toString() : sonicBalance
-                   )
-                 }
-               />
-               <Button
-                 onClick={handleSwapDirection}
-                 sx={{
-                   width: "48px",
-                   minWidth: "48px",
-                   height: "48px",
-                   p: 0,
-                   alignSelf: "center",
-                   borderRadius: "50%",
-                   border: "2px solid",
-                   borderColor: "divider",
-                   "&:hover": {
-                     borderColor: "primary.main",
-                     backgroundColor: "primary.main",
-                     color: "white",
-                   },
-                 }}
-               >
-                 <ArrowUpDown size={24} />
-               </Button>
-               <SwapInput
-                 label={isEggsToSonic ? "S" : "EGGS"}
-                 value={toAmount}
-                 onChange={() => {}}
-                 balance={isEggsToSonic ? sonicBalance : eggsBalanceFormatted.toString()}
-                 disabled
-               />
-
-               <SwapButton
-                 onClick={isEggsToSonic ? handleSell : handleBuy}
-                 disabled={
-                   !fromAmount ||
-                   Number(fromAmount) <= 0 ||
-                   Number(fromAmount) >
-                     (isEggsToSonic
-                       ? Number(eggsBalanceFormatted)
-                       : Number(sonicBalance))
-                 }
-               />
-             </Stack>
-          </Stack>
-        </>
+          )}
+        </Box>
       )}
+
+      {!compact && tokenType === 'eggs' && (
+        <Typography variant="h6" align="center" sx={{ mb: 3, fontWeight: 600 }}>
+          Sell EGGS
+        </Typography>
+      )}
+
+      <SwapInput
+        tokenType={tokenType}
+        label={tradeDirection === "buy" ? tokenConfig.backingTitle : tokenConfig.tokenName}
+        value={fromAmount}
+        onChange={handleFromAmountChange}
+        balance={
+          tradeDirection === "buy"
+            ? sonicBalance
+            : eggsBalanceFormatted.toString()
+        }
+        onMax={() =>
+          handleFromAmountChange(
+            tradeDirection === "buy"
+              ? sonicBalance
+              : eggsBalanceFormatted.toString()
+          )
+        }
+      />
+
+      <Button
+        onClick={handleSwapDirection}
+        sx={{
+          width: compact ? "32px" : "48px",
+          minWidth: compact ? "32px" : "48px",
+          height: compact ? "32px" : "48px",
+          p: 0,
+          alignSelf: "center",
+          borderRadius: "50%",
+          border: "2px solid",
+          borderColor: "divider",
+          "&:hover": {
+            borderColor: "primary.main",
+            backgroundColor: "primary.main",
+            color: "white",
+          },
+        }}
+      >
+        <ArrowUpDown size={compact ? 16 : 24} />
+      </Button>
+
+      <SwapInput
+        tokenType={tokenType}
+        label={tradeDirection === "buy" ? tokenConfig.tokenName : tokenConfig.backingTitle}
+        value={convertedAmount.toFixed(6)}
+        onChange={() => {}}
+        balance={
+          tradeDirection === "buy"
+            ? eggsBalanceFormatted.toString()
+            : sonicBalance
+        }
+        disabled
+      />
+
+      <SwapButton
+        onClick={handleTradeSubmit}
+        disabled={
+          !fromAmount ||
+          Number(fromAmount) <= 0 ||
+          Number(fromAmount) >
+            (tradeDirection === "buy"
+              ? Number(sonicBalance)
+              : Number(eggsBalanceFormatted))
+        }
+      />
     </Stack>
   );
 };
