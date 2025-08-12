@@ -392,7 +392,7 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   // USDC balance for YOLK backing token (placeholder - update with actual USDC contract)
   const { data: usdcBalance, refetch: refetchUsdcBalance } = useBalance({
     address: userAddress,
-    token: "0x29219dd400f2Bf60E5a23d13Be72B486D4038894" as Address, // Placeholder USDC address
+    token: "0x25e6af9b06BeB81709B361ACd1962AdE8bF0819A" as Address, // Placeholder USDC address
     enabled: isConnected,
   });
 
