@@ -223,6 +223,9 @@ export const TokenChart: React.FC<TokenChartProps> = ({
       window.removeEventListener("resize", handleResize);
       if (chart) {
         chart.remove();
+      }
+    };
+  }, [chartContainerRef, theme, compact, providerChartData]);
 
   const candleRanges = [
     { text: "1m", time: 1 * 60 },
