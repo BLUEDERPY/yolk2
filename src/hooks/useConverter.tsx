@@ -1,42 +1,26 @@
-import { useVisibilityChange } from "@uidotdev/usehooks";
-import useWebSocket from "react-use-websocket";
 import { formatEther, parseEther } from "viem";
 import { useEffect } from "react";
-
-const WS_URL = "wss://eggs-64815067aa3c.herokuapp.com/"; //"ws://localhost:8000"; //"wss://eggs-64815067aa3c.herokuapp.com/"; //
+import { useEggsData } from "../providers/data-provider";
 
 export default function useConverter(eggAmount: bigint) {
-  const documentVisible = useVisibilityChange();
-
-  const wS_URL = !documentVisible || documentVisible ? WS_URL : "wss://";
-  // ////// console.log((!documentVisible && ready === 1) || documentVisible);
-
-  const { lastJsonMessage } = useWebSocket(wS_URL, {
-    share: true,
-
-    shouldReconnect: () => {
-      return documentVisible;
-    },
-
-    heartbeat: true,
-  });
+  const { lastMessage } = useEggsData();
 
   const price =
-    lastJsonMessage &&
-    lastJsonMessage !== "ping" &&
-    lastJsonMessage?.data &&
-    lastJsonMessage?.data !== "ping" &&
-    Array.isArray(lastJsonMessage?.data) &&
-    lastJsonMessage?.data.length === 1
-      ? lastJsonMessage?.data[lastJsonMessage?.data.length - 1]?.high
+    lastMessage &&
+    lastMessage !== "ping" &&
+    lastMessage?.data &&
+    lastMessage?.data !== "ping" &&
+    Array.isArray(lastMessage?.data) &&
+    lastMessage?.data.length === 1
+      ? lastMessage?.data[lastMessage?.data.length - 1]?.high
       : undefined;
 
   useEffect(() => {
     if (price) {
-      console.log("Price update:", lastJsonMessage?.data);
+      console.log("Price update:", lastMessage?.data);
       localStorage.setItem("eggsLastCovertPrice", price);
     }
-  }, [price, lastJsonMessage?.data]);
+  }, [price, lastMessage?.data]);
 
   const _lastPrice = localStorage.getItem("eggsLastCovertPrice") || ".00114025";
 

@@ -1,54 +1,33 @@
-import Card from "@mui/material/Card/Card";
 import { createChart, ColorType } from "lightweight-charts";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box, Button, ButtonGroup, useMediaQuery } from "@mui/material";
-import useWebSocket, { ReadyState } from "react-use-websocket";
-import { useVisibilityChange } from "@uidotdev/usehooks";
-
 import { useTheme } from "@mui/material/styles";
-const WS_URL = "wss://eggs-64815067aa3c.herokuapp.com/"; //"ws://localhost:8000";
-import { reformatData } from "./FormatData";
+import { useEggsData } from "../../providers/data-provider";
 
 export const ChartComponent = (props) => {
   const xs = useMediaQuery("(max-width:600px)");
   const theme = useTheme();
-  const documentVisible = useVisibilityChange();
-
-  const [ready, setReady] = useState(0);
-
-  const wS_URL =
-    (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
-  // ////// console.log((!documentVisible && ready === 1) || documentVisible);
-
-  const { lastMessage, readyState } = useWebSocket(wS_URL, {
-    share: true,
-
-    shouldReconnect: () => {
-      return documentVisible;
-    },
-
-    heartbeat: true,
-  });
-
-  useEffect(() => {
-    setReady(readyState);
-  }, [readyState]);
+  const { 
+    formattedChartData, 
+    candleSize, 
+    setCandleSize,
+    connectionStatus 
+  } = useEggsData();
 
   const [series, setSeries] = useState(null);
   const [chart, setChart] = useState(null);
-  const [updatedata, setData] = useState([]);
   const chartContainerRef = useRef();
-  const [candelSize, setCandleSize] = useState(60);
-  const setChartInterval = useCallback(
-    (interval) => {
-      const _data = reformatData(updatedata, interval);
-      series.setData(_data);
-
-      chart.timeScale().fitContent();
-      setCandleSize(interval);
-    },
-    [updatedata, chart, series]
-  );
+  
+  // Update chart when formatted data changes
+  useEffect(() => {
+    if (series && formattedChartData.length > 0) {
+      series.setData(formattedChartData);
+      if (chart) {
+        chart.timeScale().fitContent();
+      }
+    }
+  }, [series, chart, formattedChartData]);
+  
   const {
     data,
     colors: {
@@ -59,64 +38,6 @@ export const ChartComponent = (props) => {
       areaBottomColor = theme.palette.primary.main + "48",
     } = {},
   } = props;
-
-  const [fitCheck, setFit] = useState(true);
-  useEffect(() => {
-    if (series && chart && lastMessage && lastMessage.data !== "ping") {
-      const _rawData = JSON.parse(lastMessage.data);
-      const rawData = _rawData?.data || [];
-      //const val = _data[candelSize][0];
-      //console.log(_rawData);
-      if (rawData.length > 1) {
-        ready === 1 &&
-          setData((data) => {
-            const __data = [...rawData, ...data.slice(0, 10000)]; // Limit data size
-
-            const _data = reformatData(__data, candelSize);
-            // console.log(__data);
-            series.setData(_data);
-            if (_rawData.isFirst && fitCheck) {
-              chart.timeScale().fitContent();
-              setFit(false);
-            }
-            try {
-              localStorage.setItem("egg00ChartData", JSON.stringify(_data.slice(-1000))); // Limit stored data
-            } catch (e) {
-              console.warn("Failed to save chart data to localStorage:", e);
-            }
-            // }
-
-            return __data;
-          });
-      }
-    }
-  }, [series, chart, lastMessage, candelSize, ready, fitCheck]);
-  useEffect(() => {
-    if (series && chart && lastMessage && lastMessage.data !== "ping") {
-      const rawData = JSON.parse(lastMessage.data).data;
-
-      //const val = _data[candelSize][0];
-
-      if (rawData.length === 1 && updatedata.length > 0) {
-        if (
-          rawData[0].high != updatedata[updatedata.length - 1].high ||
-          rawData[0].time > updatedata[updatedata.length - 1].time
-        ) {
-          try {
-            let _newData = [...updatedata]; // Create copy instead of mutating
-            _newData[_newData.length - 1] = rawData[0];
-            const __data = reformatData(_newData, candelSize);
-            series?.update(__data[__data.length - 1]);
-            setData((s) => [...s.slice(-10000), rawData[0]]); // Limit array growth
-          } catch {
-            // ////// console.log("Chart Lag");
-          }
-        }
-      }
-
-      //series?.update(val);
-    }
-  }, [series, chart, lastMessage, updatedata, candelSize]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -164,18 +85,11 @@ export const ChartComponent = (props) => {
     setSeries(series);
     setChart(chart);
 
-    const cachedata = localStorage.getItem("egg00ChartData");
-
-    if (cachedata) {
-      try {
-        const jsonCacheData = JSON.parse(cachedata);
-        series.setData(jsonCacheData);
+    // Use formatted chart data from provider
+    if (formattedChartData && formattedChartData.length > 0) {
+      series.setData(formattedChartData);
+      if (chart) {
         chart.timeScale().fitContent();
-        setData(jsonCacheData);
-        console.log("usedCache");
-      } catch (e) {
-        console.warn("Failed to parse cached chart data:", e);
-        localStorage.removeItem("egg00ChartData");
       }
     }
 
@@ -187,7 +101,8 @@ export const ChartComponent = (props) => {
         chart.remove();
       }
     };
-  }, [theme]);
+  }, [theme, formattedChartData]);
+  
   const candleRanges = [
     { text: "1m", time: 1 * 60 },
     { text: "5m", time: 5 * 60 },
@@ -226,12 +141,12 @@ export const ChartComponent = (props) => {
               <Button
                 sx={{
                   background:
-                    range.time === candelSize
+                    range.time === candleSize
                       ? theme.palette.grey[900] + " !important"
                       : "",
                 }}
                 onClick={() => {
-                  setChartInterval(range.time);
+                  setCandleSize(range.time);
                 }}
               >
                 {range.text}
