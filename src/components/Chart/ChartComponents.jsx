@@ -70,7 +70,7 @@ export const ChartComponent = (props) => {
       if (rawData.length > 1) {
         ready === 1 &&
           setData((data) => {
-            const __data = [...rawData, ...data];
+            const __data = [...rawData, ...data.slice(0, 10000)]; // Limit data size
 
             const _data = reformatData(__data, candelSize);
             // console.log(__data);
@@ -79,7 +79,11 @@ export const ChartComponent = (props) => {
               chart.timeScale().fitContent();
               setFit(false);
             }
-            localStorage.setItem("egg00ChartData", JSON.stringify(_data));
+            try {
+              localStorage.setItem("egg00ChartData", JSON.stringify(_data.slice(-1000))); // Limit stored data
+            } catch (e) {
+              console.warn("Failed to save chart data to localStorage:", e);
+            }
             // }
 
             return __data;
@@ -99,11 +103,11 @@ export const ChartComponent = (props) => {
           rawData[0].time > updatedata[updatedata.length - 1].time
         ) {
           try {
-            let _newData = updatedata;
+            let _newData = [...updatedata]; // Create copy instead of mutating
             _newData[_newData.length - 1] = rawData[0];
             const __data = reformatData(_newData, candelSize);
             series?.update(__data[__data.length - 1]);
-            setData((s) => [...s, rawData[0]]);
+            setData((s) => [...s.slice(-10000), rawData[0]]); // Limit array growth
           } catch {
             // ////// console.log("Chart Lag");
           }
@@ -116,8 +120,11 @@ export const ChartComponent = (props) => {
 
   useEffect(() => {
     const handleResize = () => {
-      chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      if (chart && chartContainerRef.current) {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
     };
+    
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { color: theme.palette.background.paper },
@@ -160,18 +167,25 @@ export const ChartComponent = (props) => {
     const cachedata = localStorage.getItem("egg00ChartData");
 
     if (cachedata) {
-      const jsonCacheData = JSON.parse(cachedata);
-      series.setData(jsonCacheData);
-      chart.timeScale().fitContent();
-      setData(jsonCacheData);
-      console.log("usedCache");
+      try {
+        const jsonCacheData = JSON.parse(cachedata);
+        series.setData(jsonCacheData);
+        chart.timeScale().fitContent();
+        setData(jsonCacheData);
+        console.log("usedCache");
+      } catch (e) {
+        console.warn("Failed to parse cached chart data:", e);
+        localStorage.removeItem("egg00ChartData");
+      }
     }
 
     window.addEventListener("resize", handleResize);
+    
     return () => {
       window.removeEventListener("resize", handleResize);
-
-      chart.remove();
+      if (chart) {
+        chart.remove();
+      }
     };
   }, [theme]);
   const candleRanges = [

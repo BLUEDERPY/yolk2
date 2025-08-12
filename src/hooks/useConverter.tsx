@@ -1,6 +1,7 @@
 import { useVisibilityChange } from "@uidotdev/usehooks";
 import useWebSocket from "react-use-websocket";
 import { formatEther, parseEther } from "viem";
+import { useEffect } from "react";
 
 const WS_URL = "wss://eggs-64815067aa3c.herokuapp.com/"; //"ws://localhost:8000"; //"wss://eggs-64815067aa3c.herokuapp.com/"; //
 
@@ -29,10 +30,13 @@ export default function useConverter(eggAmount: bigint) {
       ? lastJsonMessage.data[lastJsonMessage.data.length - 1]?.high
       : undefined;
 
-  if (price) {
-    console.log("HEYYYY", lastJsonMessage.data);
-    localStorage.setItem("eggsLastCovertPrice", price);
-  }
+  useEffect(() => {
+    if (price) {
+      console.log("HEYYYY", lastJsonMessage.data);
+      localStorage.setItem("eggsLastCovertPrice", price);
+    }
+  }, [price, lastJsonMessage.data]);
+
   const _lastPrice = localStorage.getItem("eggsLastCovertPrice") || ".00114025";
 
   const sonic =
