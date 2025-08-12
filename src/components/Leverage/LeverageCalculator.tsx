@@ -56,7 +56,6 @@ export const LeverageCalculator = ({
   const sonicBalance = balance ? balance.formatted : "0";
 
   const { sonic: conversionRate } = useConverter(parseEther("1"), tokenType);
-  const eggsPerSonic = conversionRate ? Number(formatEther(conversionRate)) : 0;
   const { fee, feeWithOverCol } = getleverageFee(
     parseEther(sonicAmount || "0"),
     duration

@@ -224,7 +224,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     max,
   } = useLendingState(tokenType);
   const { sonic: conversionRateToSonic, eggs: conversionRateToEggs } =
-    useConverter(parseEther(tradeAmount || "0"), tokenType);
 
   const eggsBalance = userEggsBalance
     ? Number(formatEther(userEggsBalance))

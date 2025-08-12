@@ -96,7 +96,8 @@ export const useLendingState = (
   };
 
   const { eggs: conversionRate } = useConverter(
-    borrowAmount && max ? (borrowAmount > max ? max : borrowAmount) : BigInt(0), tokenType
+    borrowAmount && max ? (borrowAmount > max ? max : borrowAmount) : BigInt(0), 
+    tokenType
   );
 
   const fee = getInterestFeeInEggs(
@@ -124,7 +125,7 @@ export const useLendingState = (
       const c = extraEggs >= conversionRate ? 0 : rate;
       return nFormatter(c, 2); // 120% collateral ratio required
     }
-  }, [conversionRate]);
+  }, [conversionRate, collateral, borrowedInEggs]);
   1;
   const fees = useMemo(() => {
     if (!borrowAmount || !conversionRate || !fee)

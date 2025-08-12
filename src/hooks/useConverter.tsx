@@ -4,42 +4,51 @@ import { useEggsData } from "../providers/data-provider";
 import { TokenType } from "../providers/contracts";
 
 export default function useConverter(eggAmount: bigint, tokenType: TokenType = 'eggs') {
-  const { lastMessage, userData } = useEggsData();
+  const { lastMessage, userData, lastPrice } = useEggsData();
 
   // Get price from the specific token's contract data
   const contractPrice = userData[tokenType].price;
   
-  // Use contract price first, then fallback to WebSocket data for EGGS only
-  const price = contractPrice 
-    ? formatEther(contractPrice)
-    : (tokenType === 'eggs' && lastMessage &&
-       lastMessage !== "ping" &&
-       lastMessage?.data &&
-       lastMessage?.data !== "ping" &&
-       Array.isArray(lastMessage?.data) &&
-       lastMessage?.data.length === 1
-         ? lastMessage?.data[lastMessage?.data.length - 1]?.high
-         : undefined);
+  // Use contract price for conversion calculations
+  let conversionPrice: string | undefined;
+  
+  if (contractPrice) {
+    // Use contract price (1 token = X SONIC)
+    conversionPrice = formatEther(contractPrice);
+  } else if (tokenType === 'eggs' && lastPrice) {
+    // Fallback to lastPrice for EGGS
+    conversionPrice = formatEther(lastPrice);
+  } else if (tokenType === 'eggs' && lastMessage &&
+             lastMessage !== "ping" &&
+             lastMessage?.data &&
+             lastMessage?.data !== "ping" &&
+             Array.isArray(lastMessage?.data) &&
+             lastMessage?.data.length === 1) {
+    // Fallback to WebSocket data for EGGS only
+    conversionPrice = lastMessage?.data[lastMessage?.data.length - 1]?.high;
+  }
 
   useEffect(() => {
     if (contractPrice) {
       localStorage.setItem(`${tokenType}LastConvertPrice`, formatEther(contractPrice));
-    } else if (price) {
+    } else if (conversionPrice && tokenType === 'eggs') {
       console.log("Price update:", lastMessage?.data);
-      localStorage.setItem("eggsLastCovertPrice", price);
+      localStorage.setItem("eggsLastCovertPrice", conversionPrice);
     }
-  }, [contractPrice, price, lastMessage?.data, tokenType]);
+  }, [contractPrice, conversionPrice, lastMessage?.data, tokenType]);
 
-  const _lastPrice = contractPrice 
-    ? formatEther(contractPrice)
-    : localStorage.getItem(`${tokenType}LastConvertPrice`) || 
-      localStorage.getItem("eggsLastCovertPrice") || 
-      ".00114025";
+  // Get the final price for calculations
+  const _lastPrice = conversionPrice || 
+    localStorage.getItem(`${tokenType}LastConvertPrice`) || 
+    (tokenType === 'eggs' ? localStorage.getItem("eggsLastCovertPrice") : null) ||
+    "1"; // Default to 1:1 ratio if no price available
 
+  // Calculate conversions based on the token's price
   const sonic =
     _lastPrice && eggAmount
       ? (eggAmount * parseEther(_lastPrice || "1")) / parseEther("1")
       : undefined;
+       
   const eggs =
     _lastPrice && eggAmount
       ? (eggAmount * parseEther("1")) /
@@ -49,6 +58,6 @@ export default function useConverter(eggAmount: bigint, tokenType: TokenType = '
   return {
     sonic,
     eggs,
-    isSuccess: price && Number(_lastPrice) > 0,
+    isSuccess: conversionPrice && Number(_lastPrice) > 0,
   };
 }
