@@ -86,7 +86,6 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
     return days;
   }
 
-  const [borrowAmount, _setBorrowAmount] = useState(undefined);
   const [borrowAmount, _setBorrowAmount] = useState(BigInt(0));
   const setBorrowAmount = (value: bigint) => {
     // console.log(max, _val);
