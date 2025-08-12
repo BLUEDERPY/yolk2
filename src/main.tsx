@@ -10,7 +10,6 @@ import { ConnectKitProvider } from "connectkit";
 const queryClient = new QueryClient();
 import { ThemeProvider } from "./components/ThemeProvider/ThemeProvider";
 import { EggsProvider } from "./providers/data-provider.tsx";
-import { ChartDataProvider } from "./providers/chart-data-provider.tsx";
 import { Buffer } from "buffer";
 import "@rainbow-me/rainbowkit/styles.css";
 import { connectorsForWallets, WalletList } from "@rainbow-me/rainbowkit";
@@ -30,7 +29,8 @@ import binanceWallet from "@binance/w3w-rainbow-connector-v2";
 import "@rainbow-me/rainbowkit/styles.css";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
-import { sonic } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
+import { ChartDataProvider } from "./providers/chart-data-provider.tsx";
 const WALLET_CONNECT_PROJECT_ID = "3fbb6bba6f1de962d911bb5b5c9dba88";
 const APP_NAME = "Eggs";
 
@@ -58,9 +58,9 @@ const connectors = connectorsForWallets(recommendedWalletList, {
 const config = createConfig({
   ssr: false,
   connectors,
-  chains: [sonic],
+  chains: [sepolia],
   transports: {
-    [sonic.id]: http(),
+    [sepolia.id]: http(),
   },
 });
 
