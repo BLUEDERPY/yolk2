@@ -9,7 +9,9 @@ import { getInterestFeeInEggs } from "../../../utils/leverageCalculations";
 import { useEggsData } from "../../../providers/data-provider";
 import useConverter from "../../../hooks/useConverter";
 
-export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') => {
+export const useLendingState = (
+  tokenType: "eggs" | "yolk" | "nest" = "eggs"
+) => {
   const { status, setStatus } = useContext(GlobalContext);
 
   const {
@@ -22,15 +24,16 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
     isUserError,
     borrowMore,
   } = useEggsData();
-  
+
   // Use specified token data
   const loan = userData[tokenType].loan;
   const balance = userData[tokenType].balance;
-  
-  const borrowed = loan ? loan.borrowed : undefined;
-  const collateral = loan ? loan.collateral : undefined;
+
+  const borrowed = loan ? loan.borrowed : BigInt(0);
+  const collateral = loan ? loan.collateral : BigInt(0);
   const minDuration = useMemo(() => {
-    if (borrowed) return dateDiff(new Date(Number(loan.endDate) * 1000), new Date());
+    if (borrowed)
+      return dateDiff(new Date(Number(loan.endDate) * 1000), new Date());
   }, [borrowed, loan]);
   const { eggs: borrowedInEggs } = useConverter(borrowed);
   const { sonic: collateralInSonic } = useConverter(collateral);
@@ -39,7 +42,7 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
 
   const { sonic: maxEggs } = useConverter(balance);
 
-  const max = parseEther("1500000"); /*useMemo(() => {
+  const max = useMemo(() => {
     const _collateralInSonic = collateralInSonic
       ? collateralInSonic
       : BigInt(0);
@@ -48,7 +51,6 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
       (_collateralInSonic * BigInt(99)) / BigInt(100) - (borrowed || BigInt(0));
     return _maxEggs + extraEggs;
   }, [maxEggs, duration, collateralInSonic, borrowed]);
-*/
   // console.log(max);
 
   useEffect(() => {
@@ -86,7 +88,7 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
     return days;
   }
 
-  const [borrowAmount, _setBorrowAmount] = useState(BigInt(0));
+  const [borrowAmount, _setBorrowAmount] = useState(undefined);
   const setBorrowAmount = (value: bigint) => {
     // console.log(max, _val);
     if (max && max > value) _setBorrowAmount(value);
@@ -104,7 +106,9 @@ export const useLendingState = (tokenType: 'eggs' | 'yolk' | 'nest' = 'eggs') =>
   const additonalFee = getInterestFeeInEggs(
     borrowed || parseEther("0"),
     borrowed
-      ? dateDiff(new Date(Number(loan.endDate) * 1000), new Date()) - duration - 1
+      ? dateDiff(new Date(Number(loan.endDate) * 1000), new Date()) -
+          duration -
+          1
       : 0
   );
   const isTransactionOccuring = useMemo(() => {
