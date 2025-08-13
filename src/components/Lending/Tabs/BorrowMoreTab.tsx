@@ -29,7 +29,7 @@ export const BorrowMoreTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
   return (
     <Stack spacing={0} minHeight={{ xs: 0, sm: "479px" }} position={"relative"} sx={{ height: '100%' }}>
       <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}>
-        Borrow More
+        Borrow More {tokenType === 'eggs' ? 'Sonic' : tokenType === 'yolk' ? 'USDC' : 'Eggs'}
       </Typography>
       
       {isTransactionOccuring ? (

@@ -127,7 +127,7 @@ export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
 
               <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
                 <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
-                  Extension fee: {feeAmount.toFixed(4)} S
+                  Extension fee: {feeAmount.toFixed(4)} {tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}
                 </Typography>
               </Alert>
             </Stack>

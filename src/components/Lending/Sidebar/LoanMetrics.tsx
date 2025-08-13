@@ -147,11 +147,11 @@ export const LoanMetrics: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }> = (
         items={[
           {
             label: "Total Collateral",
-            value: `${nFormatter(collateralEggs, 2)} EGGS`,
+            value: `${nFormatter(collateralEggs, 2)} ${tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'}`,
           },
           {
             label: "Borrowed Amount",
-            value: `${nFormatter(borrowedSonic, 2)} S`,
+            value: `${nFormatter(borrowedSonic, 2)} ${tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}`,
           },
         ]}
       />

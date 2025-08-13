@@ -190,7 +190,7 @@ export const LeverageInputs = ({
             </Typography>
           </Box>
           <Typography variant="h6" sx={{ fontWeight: 700, color: "success.main" }}>
-            {nFormatter(loanFeeWithOverCol, 4)} S
+            {nFormatter(loanFeeWithOverCol, 4)} {tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}
           </Typography>
         </Box>
 

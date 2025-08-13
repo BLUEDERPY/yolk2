@@ -66,7 +66,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
             <Stack spacing={4}>
               <Stack spacing={2}>
                 <TextField
-                  label="Amount to Remove (EGGS)"
+                  label={`Amount to Remove (${tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'})`}
                   type="number"
                   value={removalAmount}
                   size="large"
@@ -110,7 +110,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
               </Stack>
               <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
                 <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
-                  Maximum removable amount: {maxRemovable.toFixed(2)} EGGS
+                  Maximum removable amount: {maxRemovable.toFixed(2)} {tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'}
                 </Typography>
               </Alert>
             </Stack>
@@ -131,7 +131,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
                 fontWeight: 600,
               }}
             >
-              Remove {removalAmount} EGGS
+              Remove {removalAmount} {tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'}
             </Button>
           </Box>
         </>

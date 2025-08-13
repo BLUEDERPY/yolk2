@@ -54,7 +54,7 @@ export const FeesDisplay: React.FC<FeesDisplayProps> = ({ fees, duration }) => {
           Borrowing Fee ({duration} days)
         </Typography>
         <Typography variant="body1" sx={{ fontWeight: 600 }}>
-          {nFormatter(Number(borrowingFee), 6)} S
+          {nFormatter(Number(borrowingFee), 6)} {tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}
         </Typography>
       </Box>
       <Box

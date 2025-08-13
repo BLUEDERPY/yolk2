@@ -185,7 +185,7 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                       Estimated Return
                     </Typography>
                     <Typography variant="h4" sx={{ fontSize: '1.8rem', fontWeight: 700 }}>
-                      {nFormatter(maxRemovable, 8)} Sonic
+                      {nFormatter(maxRemovable, 8)} {tokenType === 'eggs' ? 'Sonic' : tokenType === 'yolk' ? 'USDC' : 'Eggs'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: '1rem' }}>
                       After 1% flash close fee

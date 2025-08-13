@@ -162,7 +162,7 @@ export const LendingInterface: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }
           spacing={3}
         >
           <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}>
-            Borrow SONIC
+            Borrow {tokenType === 'eggs' ? 'Sonic' : tokenType === 'yolk' ? 'USDC' : 'Eggs'}
           </Typography>
           
           <BorrowInputs
