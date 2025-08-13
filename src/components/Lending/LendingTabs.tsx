@@ -32,6 +32,13 @@ export const LendingTabs = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
 
+  // Get token configuration
+  const tokenConfig = {
+    eggs: { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" },
+    yolk: { tokenName: "YOLK", backingToken: "USDC", backingTitle: "USDC" },
+    nest: { tokenName: "NEST", backingToken: "EGGS", backingTitle: "Eggs" },
+  }[tokenType];
+
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -70,16 +77,16 @@ export const LendingTabs = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk
         }}
       >
         <TabPanel value={value} index={0}>
-          <BorrowMoreTab tokenType={tokenType} />
+          <BorrowMoreTab tokenType={tokenType} tokenConfig={tokenConfig} />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <RemoveCollateralTab tokenType={tokenType} />
+          <RemoveCollateralTab tokenType={tokenType} tokenConfig={tokenConfig} />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <ExtendLoanTab tokenType={tokenType} />
+          <ExtendLoanTab tokenType={tokenType} tokenConfig={tokenConfig} />
         </TabPanel>
         <TabPanel value={value} index={3}>
-          <ClosePositionTab tokenType={tokenType} />
+          <ClosePositionTab tokenType={tokenType} tokenConfig={tokenConfig} />
         </TabPanel>
       </Box>
     </Stack>

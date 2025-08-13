@@ -15,7 +15,13 @@ import LoadingScreen from "../../LoadingScreen";
 import useConverter from "../../../hooks/useConverter";
 import { useEggsData } from "../../../providers/data-provider";
 
-export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
+export const RemoveCollateralTab = ({ 
+  tokenType = 'eggs',
+  tokenConfig = { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" }
+}: { 
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+  tokenConfig?: { tokenName: string; backingToken: string; backingTitle: string };
+}) => {
   const [removalAmount, setRemovalAmount] = useState("0");
 
   const {
@@ -66,7 +72,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
             <Stack spacing={4}>
               <Stack spacing={2}>
                 <TextField
-                  label={`Amount to Remove (${tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'})`}
+                  label={`Amount to Remove (${tokenConfig.tokenName})`}
                   type="number"
                   value={removalAmount}
                   size="large"
@@ -94,7 +100,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
                   fullWidth
                   helperText={
                     <Typography variant="body1" sx={{ fontSize: '1rem', mt: 1 }}>
-                      Remaining collateral: {remainingCollateral.toFixed(2)} EGGS
+                      Remaining collateral: {remainingCollateral.toFixed(2)} {tokenConfig.tokenName}
                     </Typography>
                   }
                   sx={{
@@ -110,7 +116,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
               </Stack>
               <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
                 <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
-                  Maximum removable amount: {maxRemovable.toFixed(2)} {tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'}
+                  Maximum removable amount: {maxRemovable.toFixed(2)} {tokenConfig.tokenName}
                 </Typography>
               </Alert>
             </Stack>
@@ -131,7 +137,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
                 fontWeight: 600,
               }}
             >
-              Remove {removalAmount} {tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'}
+              Remove {removalAmount} {tokenConfig.tokenName}
             </Button>
           </Box>
         </>

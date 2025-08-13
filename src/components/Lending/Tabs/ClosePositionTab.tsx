@@ -20,7 +20,13 @@ import { useEggsData } from "../../../providers/data-provider";
 
 type CloseMethod = "standard" | "flash";
 
-export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
+export const ClosePositionTab = ({ 
+  tokenType = 'eggs',
+  tokenConfig = { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" }
+}: { 
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+  tokenConfig?: { tokenName: string; backingToken: string; backingTitle: string };
+}) => {
   const [closeMethod, setCloseMethod] = useState<CloseMethod>("standard");
   const [repayAmount, setRepayAmount] = useState<string>("0");
 
@@ -102,10 +108,10 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
               {closeMethod === "standard" ? (
                 <Stack spacing={3}>
                   <Typography variant="h6" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
-                    Required SONIC to Repay
+                    Required {tokenConfig.backingTitle} to Repay
                   </Typography>
                   <TextField
-                    label="Repay Amount (SONIC)"
+                    label={`Repay Amount (${tokenConfig.backingToken})`}
                     type="number"
                     value={repayAmount}
                     size="large"
@@ -130,7 +136,7 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                     }}
                     helperText={
                       <Typography variant="body1" sx={{ fontSize: '1rem', mt: 1 }}>
-                        Max repayable: {nFormatter(borrowed, 2)} SONIC
+                        Max repayable: {nFormatter(borrowed, 2)} {tokenConfig.backingToken}
                       </Typography>
                     }
                     sx={{
@@ -149,13 +155,11 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                     {Number(repayAmount) === borrowed ? (
                       <>
                         After repayment, you will receive{" "}
-                        {nFormatter(collateral, 2)} EGGS
+                        {nFormatter(collateral, 2)} {tokenConfig.tokenName}
                       </>
                     ) : (
                       <>
-                        Partial repayment of {nFormatter(Number(repayAmount), 2)}{" "}
-                        SONIC. Your remaining loan will be{" "}
-                        {nFormatter(borrowed - Number(repayAmount), 2)} SONIC
+                        Partial repayment of {nFormatter(Number(repayAmount), 2)} {tokenConfig.backingToken}. Your remaining loan will be {nFormatter(borrowed - Number(repayAmount), 2)} {tokenConfig.backingToken}
                       </>
                     )}
                     </Typography>
@@ -166,16 +170,13 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                   {maxRemovable < 0 ? (
                     <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
                       <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
-                        Your collateral value must be 1% higher than your borrowed
-                        amount to use this function.
+                        Your {tokenConfig.tokenName} collateral value must be 1% higher than your borrowed amount to use this function.
                       </Typography>
                     </Alert>
                   ) : (
                     <Alert severity="warning" sx={{ fontSize: '1rem', py: 2 }}>
                       <Typography variant="body1" sx={{ fontSize: '1.1rem', fontWeight: 500 }}>
-                        Flash close will swap your collateral for SONIC to repay the
-                        loan in a single transaction. Using this function result in 1%
-                        fee.
+                        Flash close will swap your {tokenConfig.tokenName} collateral for {tokenConfig.backingTitle} to repay the loan in a single transaction. Using this function result in 1% fee.
                       </Typography>
                     </Alert>
                   )}
@@ -185,7 +186,7 @@ export const ClosePositionTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 
                       Estimated Return
                     </Typography>
                     <Typography variant="h4" sx={{ fontSize: '1.8rem', fontWeight: 700 }}>
-                      {nFormatter(maxRemovable, 8)} {tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}
+                      {nFormatter(maxRemovable, 8)} {tokenConfig.backingToken}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: '1rem' }}>
                       After 1% flash close fee

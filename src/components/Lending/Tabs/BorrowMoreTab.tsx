@@ -8,7 +8,13 @@ import { useLendingState } from "../hooks/useLendingState";
 import { PositionSummary } from "../components/PositionSummary";
 import LoadingScreen from "../../LoadingScreen";
 
-export const BorrowMoreTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
+export const BorrowMoreTab = ({ 
+  tokenType = 'eggs',
+  tokenConfig = { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" }
+}: { 
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+  tokenConfig?: { tokenName: string; backingToken: string; backingTitle: string };
+}) => {
   const {
     borrowAmount,
     setBorrowAmount,
@@ -29,7 +35,7 @@ export const BorrowMoreTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
   return (
     <Stack spacing={0} minHeight={{ xs: 0, sm: "479px" }} position={"relative"} sx={{ height: '100%' }}>
       <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}>
-        Borrow More {tokenType === 'eggs' ? 'Sonic' : tokenType === 'yolk' ? 'USDC' : 'Eggs'}
+        Borrow More {tokenConfig.backingTitle}
       </Typography>
       
       {isTransactionOccuring ? (

@@ -8,7 +8,13 @@ import LoadingScreen from "../../LoadingScreen";
 import { useEggsData } from "../../../providers/data-provider";
 import { getInterestFeeInEggs } from "../../../utils/leverageCalculations";
 
-export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yolk' | 'nest' }) => {
+export const ExtendLoanTab = ({ 
+  tokenType = 'eggs',
+  tokenConfig = { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" }
+}: { 
+  tokenType?: 'eggs' | 'yolk' | 'nest';
+  tokenConfig?: { tokenName: string; backingToken: string; backingTitle: string };
+}) => {
   const [extensionDays, setExtensionDays] = useState(1);
 
   const {
@@ -127,7 +133,7 @@ export const ExtendLoanTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs' | 'yo
 
               <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
                 <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
-                  Extension fee: {feeAmount.toFixed(4)} {tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}
+                  Extension fee: {feeAmount.toFixed(4)} {tokenConfig.backingToken}
                 </Typography>
               </Alert>
             </Stack>
