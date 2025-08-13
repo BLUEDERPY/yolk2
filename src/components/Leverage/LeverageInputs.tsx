@@ -57,6 +57,12 @@ export const LeverageInputs = ({
   const sonic = userData[tokenType].backingBalance;
   const eggsBalance = userData[tokenType].balance;
 
+  // Get token configuration
+  const tokenConfig = {
+    eggs: { tokenName: "EGGS", backingToken: "S", backingTitle: "Sonic" },
+    yolk: { tokenName: "YOLK", backingToken: "USDC", backingTitle: "USDC" },
+    nest: { tokenName: "NEST", backingToken: "EGGS", backingTitle: "Eggs" },
+  }[tokenType];
   return (
     <Stack
       spacing={3}
@@ -92,7 +98,7 @@ export const LeverageInputs = ({
           {/* SONIC Amount */}
           <Box>
             <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>
-              Amount of S to Borrow
+              Amount of {tokenConfig.backingTitle} to Borrow
             </Typography>
             <TextField
               type="number"
