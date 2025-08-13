@@ -41,34 +41,42 @@ interface EggsContextType {
   // User data for multiple tokens
   userData: {
     eggs: {
-      loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
+      loan:
+        | { collateral: bigint; borrowed: bigint; endDate: bigint }
+        | undefined;
       balance: bigint | undefined;
       backingBalance: any | undefined;
       price: bigint | undefined;
     };
     yolk: {
-      loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
+      loan:
+        | { collateral: bigint; borrowed: bigint; endDate: bigint }
+        | undefined;
       balance: bigint | undefined;
       backingBalance: any | undefined;
       price: bigint | undefined;
     };
     nest: {
-      loan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
+      loan:
+        | { collateral: bigint; borrowed: bigint; endDate: bigint }
+        | undefined;
       balance: bigint | undefined;
       backingBalance: any | undefined;
       price: bigint | undefined;
     };
   };
-  
+
   // Contract prices for conversions
   contractPrices: {
     eggs?: bigint;
     yolk?: bigint;
     nest?: bigint;
   };
-  
+
   // Legacy compatibility - will be deprecated
-  userLoan: { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined;
+  userLoan:
+    | { collateral: bigint; borrowed: bigint; endDate: bigint }
+    | undefined;
   userEggsBalance: bigint | undefined;
   userSonicBalance: any | undefined;
   totalMinted: bigint | undefined;
@@ -158,22 +166,26 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { address: userAddress, isConnected } = useAccount();
-  
+
   // Contract prices state
   const [contractPrices, setContractPrices] = useState<{
     eggs?: bigint;
     yolk?: bigint;
     nest?: bigint;
   }>({});
-  
+
   // Memoize event handlers to prevent recreating functions
   const handleEggsPrice = useCallback((logs: any[]) => {
     const latestLog = logs[logs.length - 1];
     if (latestLog && latestLog.args) {
-      const { price } = latestLog.args as { time: bigint; price: bigint; volumeInSonic: bigint };
+      const { price } = latestLog.args as {
+        time: bigint;
+        price: bigint;
+        volumeInSonic: bigint;
+      };
       if (price) {
-        setContractPrices(prev => ({ ...prev, eggs: price }));
-        localStorage.setItem('eggsLastConvertPrice', formatEther(price));
+        setContractPrices((prev) => ({ ...prev, eggs: price }));
+        localStorage.setItem("eggsLastConvertPrice", formatEther(price));
       }
     }
   }, []);
@@ -181,10 +193,14 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   const handleYolkPrice = useCallback((logs: any[]) => {
     const latestLog = logs[logs.length - 1];
     if (latestLog && latestLog.args) {
-      const { price } = latestLog.args as { time: bigint; price: bigint; volumeInSonic: bigint };
+      const { price } = latestLog.args as {
+        time: bigint;
+        price: bigint;
+        volumeInSonic: bigint;
+      };
       if (price) {
-        setContractPrices(prev => ({ ...prev, yolk: price }));
-        localStorage.setItem('yolkLastConvertPrice', formatEther(price));
+        setContractPrices((prev) => ({ ...prev, yolk: price }));
+        localStorage.setItem("yolkLastConvertPrice", formatEther(price));
       }
     }
   }, []);
@@ -192,10 +208,14 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   const handleNestPrice = useCallback((logs: any[]) => {
     const latestLog = logs[logs.length - 1];
     if (latestLog && latestLog.args) {
-      const { price } = latestLog.args as { time: bigint; price: bigint; volumeInSonic: bigint };
+      const { price } = latestLog.args as {
+        time: bigint;
+        price: bigint;
+        volumeInSonic: bigint;
+      };
       if (price) {
-        setContractPrices(prev => ({ ...prev, nest: price }));
-        localStorage.setItem('nestLastConvertPrice', formatEther(price));
+        setContractPrices((prev) => ({ ...prev, nest: price }));
+        localStorage.setItem("nestLastConvertPrice", formatEther(price));
       }
     }
   }, []);
@@ -204,30 +224,31 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   useWatchContractEvent({
     address: EggsContract.address as Address,
     abi: EggsContract.abi,
-    eventName: 'Price',
+    eventName: "Price",
     onLogs: handleEggsPrice,
-    poll: true,
-    pollingInterval: 4000,
+    syncConnectedChain: true,
   });
 
   useWatchContractEvent({
     address: TokenContracts.yolk.address as Address,
     abi: TokenContracts.yolk.abi,
-    eventName: 'Price',
-    enabled: TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
+    eventName: "Price",
+    enabled:
+      TokenContracts.yolk.address !==
+      "0x0000000000000000000000000000000000000000",
     onLogs: handleYolkPrice,
-    poll: true,
-    pollingInterval: 4000,
+    syncConnectedChain: true,
   });
 
   useWatchContractEvent({
     address: TokenContracts.nest.address as Address,
     abi: TokenContracts.nest.abi,
-    eventName: 'Price',
-    enabled: TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
+    eventName: "Price",
+    enabled:
+      TokenContracts.nest.address !==
+      "0x0000000000000000000000000000000000000000",
     onLogs: handleNestPrice,
-    poll: true,
-    pollingInterval: 4000,
+    syncConnectedChain: true,
   });
 
   // Load cached prices on mount
@@ -236,8 +257,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
       const eggsPrice = localStorage.getItem("eggsLastConvertPrice");
       const yolkPrice = localStorage.getItem("yolkLastConvertPrice");
       const nestPrice = localStorage.getItem("nestLastConvertPrice");
-      
-      setContractPrices(prev => ({
+
+      setContractPrices((prev) => ({
         ...prev,
         eggs: eggsPrice ? parseEther(eggsPrice) : prev.eggs,
         yolk: yolkPrice ? parseEther(yolkPrice) : prev.yolk,
@@ -249,7 +270,10 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   // Helper function to get contract config for a token
-  const getTokenContract = useCallback((token: TokenType = 'eggs') => TokenContracts[token], []);
+  const getTokenContract = useCallback(
+    (token: TokenType = "eggs") => TokenContracts[token],
+    []
+  );
 
   // Protocol data reads
   const { data: totalMinted, refetch: refetchTotalMinted } = useReadContract({
@@ -337,7 +361,9 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     abi: TokenContracts.yolk.abi,
     address: TokenContracts.yolk.address as Address,
     functionName: "lastPrice",
-    enabled: TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
+    enabled:
+      TokenContracts.yolk.address !==
+      "0x0000000000000000000000000000000000000000",
   });
 
   // NEST price read
@@ -345,13 +371,15 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     abi: TokenContracts.nest.abi,
     address: TokenContracts.nest.address as Address,
     functionName: "lastPrice",
-    enabled: TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
+    enabled:
+      TokenContracts.nest.address !==
+      "0x0000000000000000000000000000000000000000",
   });
 
   // Update contract prices when price data changes
   useEffect(() => {
     // Only update if we don't have real-time prices from events
-    setContractPrices(prev => ({
+    setContractPrices((prev) => ({
       eggs: prev.eggs || lastPrice,
       yolk: prev.yolk || yolkPrice,
       nest: prev.nest || nestPrice,
@@ -390,16 +418,23 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     address: TokenContracts.yolk.address as Address,
     functionName: "getLoanByAddress",
     args: [userAddress],
-    enabled: isConnected && TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
+    enabled:
+      isConnected &&
+      TokenContracts.yolk.address !==
+        "0x0000000000000000000000000000000000000000",
   });
 
-  const { data: yolkUserBalance, refetch: refetchYolkUserBalance } = useReadContract({
-    abi: TokenContracts.yolk.abi,
-    address: TokenContracts.yolk.address as Address,
-    functionName: "balanceOf",
-    args: [userAddress],
-    enabled: isConnected && TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
-  });
+  const { data: yolkUserBalance, refetch: refetchYolkUserBalance } =
+    useReadContract({
+      abi: TokenContracts.yolk.abi,
+      address: TokenContracts.yolk.address as Address,
+      functionName: "balanceOf",
+      args: [userAddress],
+      enabled:
+        isConnected &&
+        TokenContracts.yolk.address !==
+          "0x0000000000000000000000000000000000000000",
+    });
 
   // USDC balance for YOLK backing token (placeholder - update with actual USDC contract)
   const { data: usdcBalance, refetch: refetchUsdcBalance } = useBalance({
@@ -414,16 +449,23 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     address: TokenContracts.nest.address as Address,
     functionName: "getLoanByAddress",
     args: [userAddress],
-    enabled: isConnected && TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
+    enabled:
+      isConnected &&
+      TokenContracts.nest.address !==
+        "0x0000000000000000000000000000000000000000",
   });
 
-  const { data: nestUserBalance, refetch: refetchNestUserBalance } = useReadContract({
-    abi: TokenContracts.nest.abi,
-    address: TokenContracts.nest.address as Address,
-    functionName: "balanceOf",
-    args: [userAddress],
-    enabled: isConnected && TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
-  });
+  const { data: nestUserBalance, refetch: refetchNestUserBalance } =
+    useReadContract({
+      abi: TokenContracts.nest.abi,
+      address: TokenContracts.nest.address as Address,
+      functionName: "balanceOf",
+      args: [userAddress],
+      enabled:
+        isConnected &&
+        TokenContracts.nest.address !==
+          "0x0000000000000000000000000000000000000000",
+    });
 
   const { data: ethBalance, refetch: refetchEthBalance } = useBalance({
     address: userAddress,
@@ -431,46 +473,75 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   // Create userData structure
-  const userData = useMemo(() => ({
-    eggs: {
-      loan: userLoan ? {
-        collateral: userLoan[0] as bigint,
-        borrowed: userLoan[1] as bigint,
-        endDate: userLoan[2] as bigint
-      } : undefined,
-      balance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
-      backingBalance: ethBalance,
-      price: contractPrices.eggs || lastPrice,
-    },
-    yolk: {
-      loan: yolkUserLoan ? {
-        collateral: yolkUserLoan[0] as bigint,
-        borrowed: yolkUserLoan[1] as bigint,
-        endDate: yolkUserLoan[2] as bigint
-      } : undefined,
-      balance: yolkUserBalance && yolkUserBalance > BigInt(1000) ? yolkUserBalance : undefined,
-      backingBalance: usdcBalance,
-      price: contractPrices.yolk || yolkPrice,
-    },
-    nest: {
-      loan: nestUserLoan ? {
-        collateral: nestUserLoan[0] as bigint,
-        borrowed: nestUserLoan[1] as bigint,
-        endDate: nestUserLoan[2] as bigint
-      } : undefined,
-      balance: nestUserBalance && nestUserBalance > BigInt(1000) ? nestUserBalance : undefined,
-      backingBalance: { 
-        ...ethBalance, 
-        value: userEggsBalance || BigInt(0),
-        formatted: userEggsBalance ? formatEther(userEggsBalance) : "0"
+  const userData = useMemo(
+    () => ({
+      eggs: {
+        loan: userLoan
+          ? {
+              collateral: userLoan[0] as bigint,
+              borrowed: userLoan[1] as bigint,
+              endDate: userLoan[2] as bigint,
+            }
+          : undefined,
+        balance:
+          userEggsBalance && userEggsBalance > BigInt(1000)
+            ? userEggsBalance
+            : undefined,
+        backingBalance: ethBalance,
+        price: contractPrices.eggs || lastPrice,
       },
-      price: contractPrices.nest || nestPrice,
-    },
-  }), [
-    userLoan, userEggsBalance, ethBalance, contractPrices.eggs, lastPrice,
-    yolkUserLoan, yolkUserBalance, usdcBalance, contractPrices.yolk, yolkPrice,
-    nestUserLoan, nestUserBalance, contractPrices.nest, nestPrice
-  ]);
+      yolk: {
+        loan: yolkUserLoan
+          ? {
+              collateral: yolkUserLoan[0] as bigint,
+              borrowed: yolkUserLoan[1] as bigint,
+              endDate: yolkUserLoan[2] as bigint,
+            }
+          : undefined,
+        balance:
+          yolkUserBalance && yolkUserBalance > BigInt(1000)
+            ? yolkUserBalance
+            : undefined,
+        backingBalance: usdcBalance,
+        price: contractPrices.yolk || yolkPrice,
+      },
+      nest: {
+        loan: nestUserLoan
+          ? {
+              collateral: nestUserLoan[0] as bigint,
+              borrowed: nestUserLoan[1] as bigint,
+              endDate: nestUserLoan[2] as bigint,
+            }
+          : undefined,
+        balance:
+          nestUserBalance && nestUserBalance > BigInt(1000)
+            ? nestUserBalance
+            : undefined,
+        backingBalance: {
+          ...ethBalance,
+          value: userEggsBalance || BigInt(0),
+          formatted: userEggsBalance ? formatEther(userEggsBalance) : "0",
+        },
+        price: contractPrices.nest || nestPrice,
+      },
+    }),
+    [
+      userLoan,
+      userEggsBalance,
+      ethBalance,
+      contractPrices.eggs,
+      lastPrice,
+      yolkUserLoan,
+      yolkUserBalance,
+      usdcBalance,
+      contractPrices.yolk,
+      yolkPrice,
+      nestUserLoan,
+      nestUserBalance,
+      contractPrices.nest,
+      nestPrice,
+    ]
+  );
 
   const {
     writeContract,
@@ -483,99 +554,118 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   } = useWriteContractAndWaitForConfirm("");
   const { abi, address } = EggsContract;
 
-  const buy = useCallback((sonicAmount: string, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    
-    if (token === 'eggs') {
-      // EGGS contract: buy(address receiver) payable
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "buy",
-        args: [userAddress],
-        value: parseEther(sonicAmount),
-      });
-    } else {
-      // YOLK/NEST contracts: buy(address receiver, uint256 amount) nonpayable
-      // First need to approve the backing token
-      const backingTokenBalance = userData[token].backingBalance;
-      const amountToBuy = parseEther(sonicAmount);
-      
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "buy",
-        args: [userAddress, amountToBuy],
-      });
-    }
-  }, [getTokenContract, writeContract, userAddress, userData]);
-  
-  const sell = useCallback((eggAmount: string, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    const tokenBalance = userData[token].balance;
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "sell",
-      args: [tokenBalance && tokenBalance < parseEther(eggAmount) ? tokenBalance : parseEther(eggAmount)],
-    });
-  }, [getTokenContract, userData, writeContract]);
+  const buy = useCallback(
+    (sonicAmount: string, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
 
-  const claim = useCallback((token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "getReward",
-      args: [userAddress, ["0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38"]],
-    });
-  }, [getTokenContract, writeContract, userAddress]);
-  
-  const borrow = useCallback((sonicAmount: bigint, days: number, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    
-    if (token === 'eggs') {
-      // EGGS contract: borrow(uint256 sonic, uint256 numberOfDays) nonpayable
+      if (token === "eggs") {
+        // EGGS contract: buy(address receiver) payable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "buy",
+          args: [userAddress],
+          value: parseEther(sonicAmount),
+        });
+      } else {
+        // YOLK/NEST contracts: buy(address receiver, uint256 amount) nonpayable
+        // First need to approve the backing token
+        const backingTokenBalance = userData[token].backingBalance;
+        const amountToBuy = parseEther(sonicAmount);
+
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "buy",
+          args: [userAddress, amountToBuy],
+        });
+      }
+    },
+    [getTokenContract, writeContract, userAddress, userData]
+  );
+
+  const sell = useCallback(
+    (eggAmount: string, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
+      const tokenBalance = userData[token].balance;
       writeContract({
         abi: contract.abi,
         address: contract.address as Address,
-        functionName: "borrow",
-        args: [sonicAmount, days],
+        functionName: "sell",
+        args: [
+          tokenBalance && tokenBalance < parseEther(eggAmount)
+            ? tokenBalance
+            : parseEther(eggAmount),
+        ],
       });
-    } else {
-      // YOLK/NEST contracts: borrow(uint256 sonic, uint256 numberOfDays) nonpayable
-      // Same signature, but different backing token handling
+    },
+    [getTokenContract, userData, writeContract]
+  );
+
+  const claim = useCallback(
+    (token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
       writeContract({
         abi: contract.abi,
         address: contract.address as Address,
-        functionName: "borrow",
-        args: [sonicAmount, days],
+        functionName: "getReward",
+        args: [userAddress, ["0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38"]],
       });
-    }
-  }, [getTokenContract, writeContract]);
-  
-  const borrowMore = useCallback((sonicAmount: bigint, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    
-    if (token === 'eggs') {
-      // EGGS contract: borrowMore(uint256 sonic) nonpayable
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "borrowMore",
-        args: [sonicAmount],
-      });
-    } else {
-      // YOLK/NEST contracts: borrowMore(uint256 sonic) nonpayable
-      // Same signature for all tokens
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "borrowMore",
-        args: [sonicAmount],
-      });
-    }
-  }, [getTokenContract, writeContract]);
+    },
+    [getTokenContract, writeContract, userAddress]
+  );
+
+  const borrow = useCallback(
+    (sonicAmount: bigint, days: number, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
+
+      if (token === "eggs") {
+        // EGGS contract: borrow(uint256 sonic, uint256 numberOfDays) nonpayable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "borrow",
+          args: [sonicAmount, days],
+        });
+      } else {
+        // YOLK/NEST contracts: borrow(uint256 sonic, uint256 numberOfDays) nonpayable
+        // Same signature, but different backing token handling
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "borrow",
+          args: [sonicAmount, days],
+        });
+      }
+    },
+    [getTokenContract, writeContract]
+  );
+
+  const borrowMore = useCallback(
+    (sonicAmount: bigint, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
+
+      if (token === "eggs") {
+        // EGGS contract: borrowMore(uint256 sonic) nonpayable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "borrowMore",
+          args: [sonicAmount],
+        });
+      } else {
+        // YOLK/NEST contracts: borrowMore(uint256 sonic) nonpayable
+        // Same signature for all tokens
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "borrowMore",
+          args: [sonicAmount],
+        });
+      }
+    },
+    [getTokenContract, writeContract]
+  );
   const publicClient = usePublicClient();
 
   const estimatedGas = 0; /* useEstimateGas({
@@ -586,125 +676,146 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     value: "0.01",
   });*/
 
-  const leverage = useCallback((sonic, days, _fee, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    
-    if (token === 'eggs') {
-      // EGGS contract: leverage(uint256 sonic, uint256 numberOfDays) payable
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "leverage",
-        args: [sonic, days],
-        value: _fee,
-      });
-    } else {
-      // YOLK/NEST contracts: leverage(uint256 sonic, uint256 numberOfDays) nonpayable
-      // No value parameter needed for YOLK/NEST
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "leverage",
-        args: [sonic, days],
-      });
-    }
-  }, [getTokenContract, writeContract]);
-  
-  const closePosition = useCallback((token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    
-    if (token === 'eggs') {
-      // EGGS contract: closePosition() payable
-      const loan = userData[token].loan;
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "closePosition",
-        args: [],
-        value: loan ? loan.borrowed : 0,
-      });
-    } else {
-      // YOLK/NEST contracts: closePosition() nonpayable
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "closePosition",
-        args: [],
-      });
-    }
-  }, [getTokenContract, userData, writeContract]);
-  
-  const repay = useCallback((sonic: BigInt, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    
-    if (token === 'eggs') {
-      // EGGS contract: repay() payable
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "repay",
-        args: [],
-        value: sonic,
-      });
-    } else {
-      // YOLK/NEST contracts: repay(uint256 amount) nonpayable
-      writeContract({
-        abi: contract.abi,
-        address: contract.address as Address,
-        functionName: "repay",
-        args: [sonic],
-      });
-    }
-  }, [getTokenContract, writeContract]);
+  const leverage = useCallback(
+    (sonic, days, _fee, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
 
-  const flashClosePosition = useCallback((token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "flashClosePosition",
-      args: [],
-    });
-  }, [getTokenContract, writeContract]);
-  
-  const removeCollateral = useCallback((amount: string, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    const collateral = parseEther(amount.toString());
-    writeContract({
-      abi: contract.abi,
-      address: contract.address as Address,
-      functionName: "removeCollateral",
-      args: [collateral],
-    });
-  }, [getTokenContract, writeContract]);
-  
-  const extendLoan = useCallback((days: number, fee: string, token: TokenType = 'eggs') => {
-    const contract = getTokenContract(token);
-    
-    if (token === 'eggs') {
-      // EGGS contract: extendLoan(uint256 numberOfDays) payable
+      if (token === "eggs") {
+        // EGGS contract: leverage(uint256 sonic, uint256 numberOfDays) payable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "leverage",
+          args: [sonic, days],
+          value: _fee,
+        });
+      } else {
+        // YOLK/NEST contracts: leverage(uint256 sonic, uint256 numberOfDays) nonpayable
+        // No value parameter needed for YOLK/NEST
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "leverage",
+          args: [sonic, days],
+        });
+      }
+    },
+    [getTokenContract, writeContract]
+  );
+
+  const closePosition = useCallback(
+    (token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
+
+      if (token === "eggs") {
+        // EGGS contract: closePosition() payable
+        const loan = userData[token].loan;
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "closePosition",
+          args: [],
+          value: loan ? loan.borrowed : 0,
+        });
+      } else {
+        // YOLK/NEST contracts: closePosition() nonpayable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "closePosition",
+          args: [],
+        });
+      }
+    },
+    [getTokenContract, userData, writeContract]
+  );
+
+  const repay = useCallback(
+    (sonic: BigInt, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
+
+      if (token === "eggs") {
+        // EGGS contract: repay() payable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "repay",
+          args: [],
+          value: sonic,
+        });
+      } else {
+        // YOLK/NEST contracts: repay(uint256 amount) nonpayable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "repay",
+          args: [sonic],
+        });
+      }
+    },
+    [getTokenContract, writeContract]
+  );
+
+  const flashClosePosition = useCallback(
+    (token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
       writeContract({
         abi: contract.abi,
         address: contract.address as Address,
-        functionName: "extendLoan",
-        args: [days],
-        value: parseEther(fee),
+        functionName: "flashClosePosition",
+        args: [],
       });
-    } else {
-      // YOLK/NEST contracts: extendLoan(uint256 numberOfDays) nonpayable
+    },
+    [getTokenContract, writeContract]
+  );
+
+  const removeCollateral = useCallback(
+    (amount: string, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
+      const collateral = parseEther(amount.toString());
       writeContract({
         abi: contract.abi,
         address: contract.address as Address,
-        functionName: "extendLoan",
-        args: [days],
+        functionName: "removeCollateral",
+        args: [collateral],
       });
-    }
-  }, [getTokenContract, writeContract]);
-  
-  const isMintedOut = useMemo(() =>
-    totalMinted && maxSupply
-      ? Number(formatEther(maxSupply - totalMinted))
-      : undefined, [totalMinted, maxSupply]);
+    },
+    [getTokenContract, writeContract]
+  );
+
+  const extendLoan = useCallback(
+    (days: number, fee: string, token: TokenType = "eggs") => {
+      const contract = getTokenContract(token);
+
+      if (token === "eggs") {
+        // EGGS contract: extendLoan(uint256 numberOfDays) payable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "extendLoan",
+          args: [days],
+          value: parseEther(fee),
+        });
+      } else {
+        // YOLK/NEST contracts: extendLoan(uint256 numberOfDays) nonpayable
+        writeContract({
+          abi: contract.abi,
+          address: contract.address as Address,
+          functionName: "extendLoan",
+          args: [days],
+        });
+      }
+    },
+    [getTokenContract, writeContract]
+  );
+
+  const isMintedOut = useMemo(
+    () =>
+      totalMinted && maxSupply
+        ? Number(formatEther(maxSupply - totalMinted))
+        : undefined,
+    [totalMinted, maxSupply]
+  );
   // Set up websocket listener for price events
 
   const refetchAll = useCallback(() => {
@@ -725,24 +836,42 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     refetchEthBalance();
 
     // YOLK data (only if contract is available)
-    if (TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000") {
+    if (
+      TokenContracts.yolk.address !==
+      "0x0000000000000000000000000000000000000000"
+    ) {
       refetchYolkUserLoan();
       refetchYolkUserBalance();
       refetchUsdcBalance();
     }
 
     // NEST data (only if contract is available)
-    if (TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000") {
+    if (
+      TokenContracts.nest.address !==
+      "0x0000000000000000000000000000000000000000"
+    ) {
       refetchNestUserLoan();
       refetchNestUserBalance();
       // NEST uses EGGS as backing, so refetchUserEggsBalance is already called above
     }
   }, [
-    refetchTotalSupply, refetchTotalMinted, refetchMaxSupply, refetchTotalBorrowed,
-    refetchTotalCollateral, refetchBacking, refetchLastPrice, refetchYolkPrice,
-    refetchNestPrice, refetchUserLoan, refetchUserEggsBalance, refetchEthBalance,
-    refetchYolkUserLoan, refetchYolkUserBalance, refetchUsdcBalance,
-    refetchNestUserLoan, refetchNestUserBalance
+    refetchTotalSupply,
+    refetchTotalMinted,
+    refetchMaxSupply,
+    refetchTotalBorrowed,
+    refetchTotalCollateral,
+    refetchBacking,
+    refetchLastPrice,
+    refetchYolkPrice,
+    refetchNestPrice,
+    refetchUserLoan,
+    refetchUserEggsBalance,
+    refetchEthBalance,
+    refetchYolkUserLoan,
+    refetchYolkUserBalance,
+    refetchUsdcBalance,
+    refetchNestUserLoan,
+    refetchNestUserBalance,
   ]);
   // console.log(isSuccess);
   useEffect(() => {
@@ -753,65 +882,102 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [isSuccess]);
 
   // Memoize context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    // Protocol data
-    isMintedOut,
-    totalSupply,
-    isStarted,
-    maxSupply,
-    totalBorrowed,
-    totalCollateral,
-    backing,
-    lastPrice,
-    loanByDay5,
-    loanByDay4,
-    loanByDay3,
-    loanByDay2,
-    loanByDay1,
-    buy,
-    sell,
-    borrow,
-    leverage,
-    estimatedGas,
-    extendLoan,
-    borrowMore,
-    closePosition,
-    repay,
-    flashClosePosition,
-    removeCollateral,
-    isSuccess,
-    isConfirming,
-    isPending,
-    isUserError,
-    isError,
-    nextReward,
-    totalMinted,
+  const contextValue = useMemo(
+    () => ({
+      // Protocol data
+      isMintedOut,
+      totalSupply,
+      isStarted,
+      maxSupply,
+      totalBorrowed,
+      totalCollateral,
+      backing,
+      lastPrice,
+      loanByDay5,
+      loanByDay4,
+      loanByDay3,
+      loanByDay2,
+      loanByDay1,
+      buy,
+      sell,
+      borrow,
+      leverage,
+      estimatedGas,
+      extendLoan,
+      borrowMore,
+      closePosition,
+      repay,
+      flashClosePosition,
+      removeCollateral,
+      isSuccess,
+      isConfirming,
+      isPending,
+      isUserError,
+      isError,
+      nextReward,
+      totalMinted,
 
-    // Multi-token user data
-    userData,
-    
-    // Contract prices for conversions
-    contractPrices,
-    
-    // Legacy compatibility
-    userLoan: userLoan as { collateral: bigint; borrowed: bigint; endDate: bigint } | undefined,
-    userEggsBalance: userEggsBalance && userEggsBalance > BigInt(1000) ? userEggsBalance : undefined,
-    userSonicBalance: ethBalance,
+      // Multi-token user data
+      userData,
 
-    // Actions
-    refetch: refetchAll,
-  }), [
-    isMintedOut, totalSupply, isStarted, maxSupply, totalBorrowed, totalCollateral,
-    backing, lastPrice, loanByDay5, loanByDay4, loanByDay3, loanByDay2, loanByDay1,
-    buy, sell, borrow, leverage, estimatedGas, extendLoan, borrowMore, closePosition,
-    repay, flashClosePosition, removeCollateral, isSuccess, isConfirming, isPending,
-    isUserError, isError, nextReward, totalMinted, userData, contractPrices,
-    userLoan, userEggsBalance, ethBalance, refetchAll
-  ]);
+      // Contract prices for conversions
+      contractPrices,
+
+      // Legacy compatibility
+      userLoan: userLoan as
+        | { collateral: bigint; borrowed: bigint; endDate: bigint }
+        | undefined,
+      userEggsBalance:
+        userEggsBalance && userEggsBalance > BigInt(1000)
+          ? userEggsBalance
+          : undefined,
+      userSonicBalance: ethBalance,
+
+      // Actions
+      refetch: refetchAll,
+    }),
+    [
+      isMintedOut,
+      totalSupply,
+      isStarted,
+      maxSupply,
+      totalBorrowed,
+      totalCollateral,
+      backing,
+      lastPrice,
+      loanByDay5,
+      loanByDay4,
+      loanByDay3,
+      loanByDay2,
+      loanByDay1,
+      buy,
+      sell,
+      borrow,
+      leverage,
+      estimatedGas,
+      extendLoan,
+      borrowMore,
+      closePosition,
+      repay,
+      flashClosePosition,
+      removeCollateral,
+      isSuccess,
+      isConfirming,
+      isPending,
+      isUserError,
+      isError,
+      nextReward,
+      totalMinted,
+      userData,
+      contractPrices,
+      userLoan,
+      userEggsBalance,
+      ethBalance,
+      refetchAll,
+    ]
+  );
 
   return (
-    <EggsContext.Provider value={contextValue}>
-      {children}
-    </EggsContext.Provider>
+    <EggsContext.Provider value={contextValue}>{children}</EggsContext.Provider>
   );
 };
