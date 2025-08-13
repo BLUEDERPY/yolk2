@@ -122,25 +122,31 @@ export const SwapForm: React.FC<SwapFormProps> = ({
 
   return (
     <Stack spacing={3} sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
-      {!compact && (
+      {!compact && showMintEndedMessage && (
         <Box sx={{ textAlign: "center", mb: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: "text.primary" }}>
             Swap Tokens
           </Typography>
-          {showMintEndedMessage && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Mint has ended, if you would like to purchase eggs please go to{" "}
-              <Link
-                target={"_blank"}
-                href={
-                  "https://www.shadow.so/trade?inputCurrency=0x0000000000000000000000000000000000000000&outputCurrency=0xf26Ff70573ddc8a90Bd7865AF8d7d70B8Ff019bC"
-                }
-                sx={{ color: "primary.main", textDecoration: "underline" }}
-              >
-                Shadow Exchange
-              </Link>
-            </Typography>
-          )}
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Mint has ended, if you would like to purchase eggs please go to{" "}
+            <Link
+              target={"_blank"}
+              href={
+                "https://www.shadow.so/trade?inputCurrency=0x0000000000000000000000000000000000000000&outputCurrency=0xf26Ff70573ddc8a90Bd7865AF8d7d70B8Ff019bC"
+              }
+              sx={{ color: "primary.main", textDecoration: "underline" }}
+            >
+              Shadow Exchange
+            </Link>
+          </Typography>
+        </Box>
+      )}
+
+      {compact && (
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: "text.primary" }}>
+            Swap Tokens
+          </Typography>
         </Box>
       )}
 
