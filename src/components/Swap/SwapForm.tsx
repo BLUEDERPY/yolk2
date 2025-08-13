@@ -124,7 +124,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({
     <Stack spacing={3} sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
       {!compact && (
         <Box sx={{ textAlign: "center", mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: "text.primary" }}>
             Swap Tokens
           </Typography>
           {showMintEndedMessage && (
@@ -145,7 +145,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({
       )}
 
       {!compact && tokenType === 'eggs' && (
-        <Typography variant="h6" align="center" sx={{ mb: 3, fontWeight: 600 }}>
+        <Typography variant="h5" align="center" sx={{ mb: 3, fontWeight: 700, color: "text.primary" }}>
           Sell EGGS
         </Typography>
       )}

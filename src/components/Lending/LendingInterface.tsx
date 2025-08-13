@@ -161,7 +161,7 @@ export const LendingInterface: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }
           }}
           spacing={3}
         >
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}>
             Borrow SONIC
           </Typography>
           

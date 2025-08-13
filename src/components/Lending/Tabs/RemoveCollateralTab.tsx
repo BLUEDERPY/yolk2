@@ -52,7 +52,7 @@ export const RemoveCollateralTab = ({ tokenType = 'eggs' }: { tokenType?: 'eggs'
       pt={"24px"}
       sx={{ height: '100%' }}
     >
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}>
         Remove Collateral
       </Typography>
 

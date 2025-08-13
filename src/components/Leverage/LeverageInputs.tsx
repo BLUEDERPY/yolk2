@@ -69,7 +69,7 @@ export const LeverageInputs = ({
       }}
     >
       <Box>
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+        <Typography variant="h5" sx={{ mb: 3, fontWeight: 700, color: "text.primary" }}>
           Open Leverage Position
         </Typography>
         

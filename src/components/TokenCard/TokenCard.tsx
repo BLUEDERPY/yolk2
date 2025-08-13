@@ -297,7 +297,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
               ) : (
                 <>
                   <Box sx={{ textAlign: "center", mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary" }}>
                       Borrow {tokenConfig.backingTitle}
                     </Typography>
                   </Box>
