@@ -12,6 +12,8 @@ import { useVisibilityChange } from "@uidotdev/usehooks";
 import { reformatData } from "../components/Chart/FormatData";
 
 const WS_URL = "wss://eggs-64815067aa3c.herokuapp.com/";
+const MAX_DATA_POINTS = 10000; // Limit data points to prevent memory leak
+const CLEANUP_THRESHOLD = 15000; // Clean up when we exceed this
 
 interface ChartDataPoint {
   timestamp: number;
@@ -71,6 +73,10 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [ready, setReady] = useState(0);
   const [fitCheck, setFitCheck] = useState(true);
   
+  // Refs to prevent memory leaks
+  const lastMessageRef = useRef<any>(null);
+  const cleanupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Memoize WebSocket URL to prevent reconnections
   const wS_URL = useMemo(() => {
     return (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
@@ -82,7 +88,14 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     shouldReconnect: useCallback(() => {
       return documentVisible;
     }, [documentVisible]),
-    heartbeat: true,
+    heartbeat: {
+      message: 'ping',
+      returnMessage: 'pong',
+      timeout: 60000,
+      interval: 25000,
+    },
+    reconnectAttempts: 5,
+    reconnectInterval: 3000,
   });
   
   // Track ready state
@@ -106,6 +119,15 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [readyState]);
 
+  // Clean up old data to prevent memory leak
+  const cleanupOldData = useCallback((data: any[]) => {
+    if (data.length > CLEANUP_THRESHOLD) {
+      // Keep only the most recent MAX_DATA_POINTS
+      return data.slice(-MAX_DATA_POINTS);
+    }
+    return data;
+  }, []);
+
   // Load chart data from localStorage on mount
   useEffect(() => {
     const loadCachedChartData = async () => {
@@ -115,9 +137,10 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
         if (cachedData) {
           const parsedData = JSON.parse(cachedData);
           if (Array.isArray(parsedData)) {
-            setChartData(parsedData);
-            setFormattedChartData(parsedData);
-            setUpdateData(parsedData);
+            const cleanedData = cleanupOldData(parsedData);
+            setChartData(cleanedData);
+            setFormattedChartData(cleanedData);
+            setUpdateData(cleanedData);
             console.log("Chart data loaded from cache");
           }
         }
@@ -130,14 +153,18 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     loadCachedChartData();
-  }, []);
+  }, [cleanupOldData]);
 
   // Memoize message handlers to prevent recreating functions
   const handleBulkData = useCallback((rawData: any[], _rawData: any) => {
     if (ready !== 1) return;
     
     setUpdateData((data) => {
-      const __data = [...rawData, ...data];
+      let __data = [...rawData, ...data];
+      
+      // Clean up data to prevent memory leak
+      __data = cleanupOldData(__data);
+      
       const _data = reformatData(__data, candleSize);
       setFormattedChartData(_data);
       
@@ -146,7 +173,9 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       
       try {
-        localStorage.setItem("egg00ChartData", JSON.stringify(_data));
+        // Only save a limited amount to localStorage
+        const dataToSave = _data.slice(-MAX_DATA_POINTS);
+        localStorage.setItem("egg00ChartData", JSON.stringify(dataToSave));
         setChartData(_data);
       } catch (e) {
         console.warn("Failed to save chart data to localStorage:", e);
@@ -154,7 +183,7 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
       
       return __data;
     });
-  }, [ready, candleSize, fitCheck]);
+  }, [ready, candleSize, fitCheck, cleanupOldData]);
 
   const handleSingleUpdate = useCallback((rawData: any[]) => {
     if (updateData.length === 0) return;
@@ -162,20 +191,30 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     const lastUpdate = updateData[updateData.length - 1];
     if (rawData[0].high !== lastUpdate.high || rawData[0].time > lastUpdate.time) {
       try {
-        const _newData = [...updateData];
-        _newData[_newData.length - 1] = rawData[0];
+        setUpdateData((prevData) => {
+          const _newData = [...prevData];
+          _newData[_newData.length - 1] = rawData[0];
+          
+          // Clean up data periodically
+          const cleanedData = cleanupOldData(_newData);
+          
+          return cleanedData;
+        });
+        
         const __data = reformatData(_newData, candleSize);
         setFormattedChartData(__data);
-        setUpdateData((s) => [...s, rawData[0]]);
       } catch (error) {
         console.warn("Chart update error:", error);
       }
     }
-  }, [updateData, candleSize]);
+  }, [updateData, candleSize, cleanupOldData]);
 
   // Handle WebSocket messages
   useEffect(() => {
-    if (!lastMessage || lastMessage.data === "ping") return;
+    // Prevent processing the same message multiple times
+    if (!lastMessage || lastMessage === lastMessageRef.current || lastMessage.data === "ping") return;
+    
+    lastMessageRef.current = lastMessage;
     
     try {
       const _rawData = JSON.parse(lastMessage.data);
@@ -191,6 +230,25 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [lastMessage, handleBulkData, handleSingleUpdate]);
   
+  // Periodic cleanup to prevent memory leaks
+  useEffect(() => {
+    const cleanup = () => {
+      setUpdateData(prevData => cleanupOldData(prevData));
+      setFormattedChartData(prevData => cleanupOldData(prevData));
+      setChartData(prevData => cleanupOldData(prevData));
+    };
+
+    // Clean up every 5 minutes
+    const interval = setInterval(cleanup, 5 * 60 * 1000);
+    
+    return () => {
+      clearInterval(interval);
+      if (cleanupTimeoutRef.current) {
+        clearTimeout(cleanupTimeoutRef.current);
+      }
+    };
+  }, [cleanupOldData]);
+
   // Update formatted data when candle size changes
   const updateFormattedData = useCallback(() => {
     if (updateData.length > 0) {
@@ -213,8 +271,9 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
       if (cachedData) {
         const parsedData = JSON.parse(cachedData);
         if (Array.isArray(parsedData)) {
-          setChartData(parsedData);
-          setFormattedChartData(parsedData);
+          const cleanedData = cleanupOldData(parsedData);
+          setChartData(cleanedData);
+          setFormattedChartData(cleanedData);
         }
       }
     } catch (error) {
@@ -223,7 +282,7 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setIsChartDataLoading(false);
     }
-  }, []);
+  }, [cleanupOldData]);
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
@@ -232,7 +291,7 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     chartDataError,
     refreshChartData,
     connectionStatus,
-    lastMessage,
+    lastMessage: null, // Don't expose lastMessage to prevent re-renders
     candleSize,
     setCandleSize,
     formattedChartData,
@@ -243,7 +302,6 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     chartDataError,
     refreshChartData,
     connectionStatus,
-    lastMessage,
     candleSize,
     formattedChartData,
     updateData,

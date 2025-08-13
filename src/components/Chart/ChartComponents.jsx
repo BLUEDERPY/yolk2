@@ -2,7 +2,7 @@ import { createChart, ColorType } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, ButtonGroup, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useEggsData } from "../../providers/data-provider";
+import { useChartData } from "../../providers/chart-data-provider";
 
 export const ChartComponent = (props) => {
   const xs = useMediaQuery("(max-width:600px)");
@@ -12,7 +12,7 @@ export const ChartComponent = (props) => {
     candleSize, 
     setCandleSize,
     connectionStatus 
-  } = useEggsData();
+  } = useChartData();
 
   const [series, setSeries] = useState(null);
   const [chart, setChart] = useState(null);
@@ -115,19 +115,7 @@ export const ChartComponent = (props) => {
   ];
 
   return (
-    <Card
-      sx={{
-        width: {
-          xs: "calc(100dvw - 10px)",
-          sm: "600px",
-          md: "500px",
-          lg: "700px",
-          xl: "900px",
-        },
-        borderRadius: { sm: "16px" },
-        position: "relative",
-      }}
-    >
+    <Box sx={{ position: "relative" }}>
       <Box
         ref={chartContainerRef}
         borderRadius={"8px"}
@@ -139,6 +127,7 @@ export const ChartComponent = (props) => {
           <ButtonGroup variant="outlined" aria-label="Basic button group">
             {candleRanges.map((range) => (
               <Button
+                key={range.text}
                 sx={{
                   background:
                     range.time === candleSize
@@ -155,6 +144,6 @@ export const ChartComponent = (props) => {
           </ButtonGroup>
         )}
       </Box>
-    </Card>
+    </Box>
   );
 };

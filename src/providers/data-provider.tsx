@@ -206,6 +206,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     abi: EggsContract.abi,
     eventName: 'Price',
     onLogs: handleEggsPrice,
+    poll: true,
+    pollingInterval: 4000,
   });
 
   useWatchContractEvent({
@@ -214,6 +216,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     eventName: 'Price',
     enabled: TokenContracts.yolk.address !== "0x0000000000000000000000000000000000000000",
     onLogs: handleYolkPrice,
+    poll: true,
+    pollingInterval: 4000,
   });
 
   useWatchContractEvent({
@@ -222,6 +226,8 @@ export const EggsProvider: React.FC<{ children: React.ReactNode }> = ({
     eventName: 'Price',
     enabled: TokenContracts.nest.address !== "0x0000000000000000000000000000000000000000",
     onLogs: handleNestPrice,
+    poll: true,
+    pollingInterval: 4000,
   });
 
   // Load cached prices on mount
