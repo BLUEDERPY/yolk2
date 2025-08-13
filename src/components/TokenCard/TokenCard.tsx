@@ -310,6 +310,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     setDuration={setDuration}
                     onMaxClick={handleMaxBorrow}
                     balance={balance}
+                       tokenConfig={tokenConfig}
                   />
                   <Box sx={{ my: 2 }}>
                     <CollateralDisplay
