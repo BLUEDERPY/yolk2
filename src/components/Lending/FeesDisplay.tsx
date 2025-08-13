@@ -15,6 +15,7 @@ interface FeesDisplayProps {
 }
 
 export const FeesDisplay: React.FC<FeesDisplayProps> = ({ fees, duration }) => {
+export const FeesDisplay: React.FC<FeesDisplayProps> = ({ fees, duration, tokenType }) => {
   const [borrowingFee, setBorrowFee] = useState(0);
   const [protocolFee, setProtocolFee] = useState(0);
   const [total, setTotal] = useState(0);

@@ -179,7 +179,7 @@ export const LendingInterface: React.FC<{ tokenType?: 'eggs' | 'yolk' | 'nest' }
               collateralRequired={collateralRequired || 0}
               borrowAmount={borrowAmount}
             />
-            <FeesDisplay fees={fees} duration={duration} />
+            <FeesDisplay fees={fees} duration={duration} tokenType={tokenType} />
           </Box>
           
           <Box sx={{ mt: "auto" }}>
