@@ -29,7 +29,7 @@ import binanceWallet from "@binance/w3w-rainbow-connector-v2";
 import "@rainbow-me/rainbowkit/styles.css";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
-import { sepolia } from "wagmi/chains";
+import { sonic } from "./providers/web3-provider";
 import { ChartDataProvider } from "./providers/chart-data-provider.tsx";
 const WALLET_CONNECT_PROJECT_ID = "3fbb6bba6f1de962d911bb5b5c9dba88";
 const APP_NAME = "Eggs";
@@ -58,9 +58,9 @@ const connectors = connectorsForWallets(recommendedWalletList, {
 const config = createConfig({
   ssr: false,
   connectors,
-  chains: [sepolia],
+  chains: [sonic],
   transports: {
-    [sepolia.id]: http(),
+    [sonic.id]: http("https://rpc.soniclabs.com"),
   },
 });
 
