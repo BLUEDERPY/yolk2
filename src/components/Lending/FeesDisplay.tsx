@@ -46,7 +46,7 @@ export const FeesDisplay: React.FC<FeesDisplayProps> = ({ fees, duration, tokenT
           </Tooltip>
         </Box>
         <Typography variant="body1" sx={{ fontWeight: 600 }}>
-          {nFormatter(Number(protocolFee), 6)} EGGS
+          {nFormatter(Number(protocolFee), 6)} {tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'}
         </Typography>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, py: 1 }}>

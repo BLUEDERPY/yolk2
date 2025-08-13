@@ -134,7 +134,7 @@ export const LeverageInputs = ({
             Total Borrowed
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 600, color: "primary.main" }}>
-            {nFormatter(Number(sonicAmount) * 0.99 - loanFee, 2)} S
+            {nFormatter(Number(sonicAmount) * 0.99 - loanFee, 2)} {tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}
           </Typography>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, py: 1 }}>
@@ -142,7 +142,7 @@ export const LeverageInputs = ({
             Total Collateral
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 600, color: "primary.main" }}>
-            {nFormatter(requiredEggs, 2)} EGGS
+            {nFormatter(requiredEggs, 2)} {tokenType === 'eggs' ? 'EGGS' : tokenType === 'yolk' ? 'YOLK' : 'NEST'}
           </Typography>
         </Box>
         <Box

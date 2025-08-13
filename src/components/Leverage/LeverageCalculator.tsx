@@ -220,6 +220,7 @@ export const LeverageCalculator = ({
               borrowAmount={Number(sonicAmount)}
               scenarios={scenarios}
               fee={loanFee}
+              tokenType={tokenType}
             />
           </Box>
         </Box>

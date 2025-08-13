@@ -15,6 +15,7 @@ interface PotentialReturnsProps {
   borrowAmount: number;
   leverageX: number;
   fee: number;
+  tokenType?: 'eggs' | 'yolk' | 'nest';
 }
 
 export const PotentialReturns = ({
@@ -22,6 +23,7 @@ export const PotentialReturns = ({
   leverageX,
   borrowAmount,
   fee,
+  tokenType = 'eggs',
 }: PotentialReturnsProps) => {
   const theme = useTheme();
   const [priceIncrease, setPriceIncrease] = useState(100);
@@ -82,7 +84,7 @@ export const PotentialReturns = ({
             sx={{ color: scaledProfit > 0 ? "success.main" : "error.main" }}
           >
             {scaledProfit > 0 ? "+" : ""}
-            {nFormatter(scaledProfit, 2)} S
+            {nFormatter(scaledProfit, 2)} {tokenType === 'eggs' ? 'S' : tokenType === 'yolk' ? 'USDC' : 'EGGS'}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             ROI: {scaledROI > 0 ? "+" : ""}
