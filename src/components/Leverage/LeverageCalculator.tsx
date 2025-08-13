@@ -192,7 +192,6 @@ export const LeverageCalculator = ({
               loanFeeWithOverCol={loanFeeWithOverCol}
               loanFee={loanFee}
               requiredEggs={requiredEggs}
-              eggsPerSonic={eggsPerSonic}
               sonicBalance={sonicBalance}
               onMaxClick={handleMaxClick}
               handleLeveragePosition={handleLeveragePosition}
