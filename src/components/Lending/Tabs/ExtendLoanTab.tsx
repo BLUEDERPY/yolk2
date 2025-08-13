@@ -133,7 +133,7 @@ export const ExtendLoanTab = ({
 
               <Alert severity="info" sx={{ fontSize: '1rem', py: 2 }}>
                 <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 600 }}>
-                  Extension fee: {feeAmount.toFixed(4)} {tokenConfig.backingToken}
+                  Extension fee: {feeAmount.toFixed(4)} {tokenConfig.backingTitle}
                 </Typography>
               </Alert>
             </Stack>
