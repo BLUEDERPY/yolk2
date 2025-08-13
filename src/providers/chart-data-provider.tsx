@@ -79,7 +79,7 @@ export const ChartDataProvider: React.FC<{ children: React.ReactNode }> = ({
   
   // Memoize WebSocket URL to prevent reconnections
   const wS_URL = useMemo(() => {
-    return (!documentVisible && ready === 1) || documentVisible ? WS_URL : "wss://";
+    return WS_URL;
   }, [documentVisible, ready]);
   
   // WebSocket connection with proper reconnection logic
