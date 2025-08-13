@@ -1,4 +1,4 @@
-import { useState, useMemo, useContext, useEffect, useCallback } from "react";
+import { useState, useMemo, useContext, useEffect, useCallback, useRef } from "react";
 import useEggsToSonic from "../../hooks/useEggsToSonic";
 import useBorrow from "../../hooks/useBorrow";
 import { GlobalContext } from "../../../providers/global-provider";
@@ -13,6 +13,7 @@ export const useLendingState = (
   tokenType: "eggs" | "yolk" | "nest" = "eggs"
 ) => {
   const { status, setStatus } = useContext(GlobalContext);
+  const prevStatusRef = useRef(status);
 
   const {
     userData,
@@ -31,10 +32,13 @@ export const useLendingState = (
 
   const borrowed = loan ? loan.borrowed : BigInt(0);
   const collateral = loan ? loan.collateral : BigInt(0);
+  
   const minDuration = useMemo(() => {
     if (borrowed)
       return dateDiff(new Date(Number(loan.endDate) * 1000), new Date());
+    return 0;
   }, [borrowed, loan]);
+  
   const { eggs: borrowedInEggs } = useConverter(borrowed);
   const { sonic: collateralInSonic } = useConverter(collateral);
 
@@ -53,65 +57,71 @@ export const useLendingState = (
   }, [maxEggs, duration, collateralInSonic, borrowed]);
   // console.log(max);
 
+  // Memoize status update to prevent unnecessary re-renders
   useEffect(() => {
-    if (isSuccess) {
+    const currentStatus = isError
+      ? "ERROR"
+      : isUserError
+      ? "ERROR"
+      : isSuccess
+      ? "SUCCESS"
+      : isConfirming
+      ? "CONFIRMING"
+      : isPending
+      ? "PENDING"
+      : "NONE";
+
+    const currentMessage = isError
+      ? `There was an error with your transaction on the blockchain`
+      : isUserError
+      ? "There was an error with your transaction. "
+      : isSuccess
+      ? `Success`
+      : isConfirming
+      ? `Blockchain transaction is confirming`
+      : isPending
+      ? `Your transaction is pending`
+      : "";
+
+    // Only update if status actually changed
+    if (prevStatusRef.current !== currentStatus) {
+      setStatus(currentStatus, currentMessage);
+      prevStatusRef.current = currentStatus;
     }
-    setStatus(
-      isError
-        ? "ERROR"
-        : isUserError
-        ? "ERROR"
-        : isSuccess
-        ? "SUCCESS"
-        : isConfirming
-        ? "CONFIRMING"
-        : isPending
-        ? "PENDING"
-        : "NONE",
-      isError
-        ? `There was an error with your transaction on the blockchain`
-        : isUserError
-        ? "There was an error with your transaction. "
-        : isSuccess
-        ? `Success`
-        : isConfirming
-        ? `Blockchain transaction is confirming`
-        : isPending
-        ? `Your transaction is pending`
-        : ""
-    );
   }, [isError, isUserError, isSuccess, isConfirming, isPending]);
 
-  function dateDiff(date1, date2) {
+  const dateDiff = useCallback((date1, date2) => {
     const msDiff = date1.getTime() - date2.getTime();
     const days = Math.floor(msDiff / (1000 * 60 * 60 * 24));
     return days;
-  }
+  }, []);
 
   const [borrowAmount, _setBorrowAmount] = useState(undefined);
-  const setBorrowAmount = (value: bigint) => {
+  const setBorrowAmount = useCallback((value: bigint) => {
     // console.log(max, _val);
     if (max && max > value) _setBorrowAmount(value);
     else _setBorrowAmount(max);
-  };
+  }, [max]);
 
   const { eggs: conversionRate } = useConverter(
     borrowAmount && max ? (borrowAmount > max ? max : borrowAmount) : BigInt(0), 
     tokenType
   );
 
-  const fee = getInterestFeeInEggs(
+  const fee = useMemo(() => getInterestFeeInEggs(
     borrowAmount && max ? (borrowAmount > max ? max : borrowAmount) : BigInt(0),
     duration
-  );
-  const additonalFee = getInterestFeeInEggs(
+  ), [borrowAmount, max, duration]);
+  
+  const additonalFee = useMemo(() => getInterestFeeInEggs(
     borrowed || parseEther("0"),
     borrowed
       ? dateDiff(new Date(Number(loan.endDate) * 1000), new Date()) -
           duration -
           1
       : 0
-  );
+  ), [borrowed, loan, dateDiff, duration]);
+  
   const isTransactionOccuring = useMemo(() => {
     return isConfirming || isPending; // 120% collateral ratio required
   }, [isConfirming, isPending]);
@@ -125,14 +135,19 @@ export const useLendingState = (
       const c = extraEggs >= conversionRate ? 0 : rate;
       return nFormatter(c, 2); // 120% collateral ratio required
     }
+    return "0";
   }, [conversionRate, collateral, borrowedInEggs]);
-  1;
+  
   const fees = useMemo(() => {
     if (!borrowAmount || !conversionRate || !fee)
       return {
         borrowingFee: 0,
         protocolFee: 0,
         total: 0,
+        borrowingFeeRaw: BigInt(0),
+        protocolFeeRaw: BigInt(0),
+        totalRaw: BigInt(0),
+        conversionRate: BigInt(0),
       };
 
     const borrowingFee = fee; // 10% APR
@@ -148,7 +163,9 @@ export const useLendingState = (
       conversionRate: conversionRate,
     };
   }, [borrowAmount, fee, conversionRate, additonalFee, borrowed]);
+  
   const { sonic: totalConverted } = useConverter(fees.totalRaw);
+  
   const maxBorrowAmount = useMemo(() => {
     if (borrowed && borrowed < max) return Number(max - borrowed).toString();
     else if (borrowed && borrowed > max) return "0";
@@ -169,32 +186,36 @@ export const useLendingState = (
     return "";
   }, [borrowAmount, maxBorrowAmount, duration]);
 
-  const handleMaxBorrow = async () => {
+  const handleMaxBorrow = useCallback(async () => {
     //// // console.log(max);
     //// // console.log(additonalFee);
     if (max) _setBorrowAmount(max);
     else if (additonalFee && additonalFee > max) setBorrowAmount("0");
     else _setBorrowAmount(max);
-  };
+  }, [max, additonalFee, setBorrowAmount]);
 
-  const setDuration = (_durattion) => {
+  const setDuration = useCallback((_durattion) => {
     _setDuration(_durattion);
-  };
+  }, []);
 
-  const handleBorrow = async () => {
+  const handleBorrow = useCallback(async () => {
     // console.log(formatEther(totalConverted), duration);
     if (borrowed && borrowed > BigInt(0)) borrowMore(borrowAmount, tokenType);
     else borrow(borrowAmount, duration, tokenType);
-  };
-  const onRepay = async () => {
+  }, [borrowed, borrowMore, borrowAmount, tokenType, borrow, duration]);
+  
+  const onRepay = useCallback(async () => {
     borrow(borrowAmount, duration);
-  };
-  const onExtend = async () => {
+  }, [borrow, borrowAmount, duration]);
+  
+  const onExtend = useCallback(async () => {
     borrow(borrowAmount, duration);
-  };
-  const onClose = async () => {
+  }, [borrow, borrowAmount, duration]);
+  
+  const onClose = useCallback(async () => {
     borrow(borrowAmount, duration);
-  };
+  }, [borrow, borrowAmount, duration]);
+  
   return {
     minDuration,
     borrowAmount: borrowAmount > max ? max : borrowAmount,
